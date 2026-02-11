@@ -36,8 +36,6 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
     task?.categoryId !== undefined ? task.categoryId.toString() : "",
   );
   const [dueDateOption, setDueDateOption] = useState<string>(getInitialDueDateOption());
-  const [done, setDone] = useState<boolean>(task?.done || false);
-  const [archived, setArchived] = useState<boolean>(task?.archived || false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Helper function to convert dropdown option to Date
@@ -69,8 +67,6 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         task: taskName.trim(),
         categoryId: parseInt(categoryId, 10),
         due: formatDateForAPI(dueDate),
-        done,
-        archived,
       };
 
       const result = await updateTask(task.id, payload);
@@ -86,8 +82,6 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         task: taskName.trim(),
         categoryId: parseInt(categoryId, 10),
         due: formatDateForAPI(dueDate),
-        done,
-        archived,
       };
 
       const result = await createTask(payload);
@@ -121,8 +115,6 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         <Form.Dropdown.Item value="tomorrow" title="Tomorrow" />
         <Form.Dropdown.Item value="2days" title="2 days from now" />
       </Form.Dropdown>
-      <Form.Checkbox id="done" label="Done" value={done} onChange={setDone} />
-      <Form.Checkbox id="archived" label="Archived" value={archived} onChange={setArchived} />
     </Form>
   );
 }

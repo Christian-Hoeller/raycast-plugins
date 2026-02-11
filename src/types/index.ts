@@ -18,8 +18,6 @@ export interface Task {
 // Form Payload Types
 export interface CreateTaskPayload {
   task: string;
-  done: boolean;
-  archived: boolean;
   due: string;
   categoryId: number;
 }

@@ -235,9 +235,19 @@ export default function Command() {
                       shortcut={{ modifiers: ["cmd"], key: "enter" }}
                     />
                     <Action
-                      title="Toggle Archive"
+                      title={task.archived ? "Unarchive Task" : "Archive Task"}
                       icon={Icon.Box}
-                      onAction={() => handleToggleArchived(task)}
+                      onAction={async () => {
+                        if (
+                          await confirmAlert({
+                            title: task.archived ? "Unarchive Task" : "Archive Task",
+                            message: `Are you sure you want to ${task.archived ? "unarchive" : "archive"} "${task.task}"?`,
+                            primaryAction: { title: task.archived ? "Unarchive" : "Archive" },
+                          })
+                        ) {
+                          handleToggleArchived(task);
+                        }
+                      }}
                       shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
                     />
                     <Action.Push
