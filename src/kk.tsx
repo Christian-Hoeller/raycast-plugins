@@ -1,114 +1,119 @@
-import { ActionPanel, List, Action, Icon, Form } from "@raycast/api";
-import { useState } from "react";
-
-interface Task {
-  id: string;
-  archived: boolean;
-  done: boolean;
-  task: string;
-  due: string;
-  category: string;
-  description?: string;
-}
-
-const MOCK_TASKS: Task[] = [
-  {
-    id: "1",
-    task: "Review pull requests",
-    category: "Work",
-    done: false,
-    archived: false,
-    due: "2026-02-15",
-    description: "Review the pending PRs in the team repository. Focus on code quality and test coverage.",
-  },
-  {
-    id: "2",
-    task: "Buy groceries",
-    category: "Personal",
-    done: false,
-    archived: false,
-    due: "2026-02-12",
-    description: "Weekly grocery shopping: milk, eggs, bread, vegetables, fruits",
-  },
-  {
-    id: "3",
-    task: "Schedule dentist appointment",
-    category: "Health",
-    done: true,
-    archived: false,
-    due: "2026-02-11",
-  },
-  {
-    id: "4",
-    task: "Update project documentation",
-    category: "Work",
-    done: false,
-    archived: false,
-    due: "2026-02-20",
-    description: "Update README and API documentation for the new features released in v2.0",
-  },
-  {
-    id: "5",
-    task: "Plan weekend trip",
-    category: "Personal",
-    done: false,
-    archived: false,
-    due: "2026-02-13",
-  },
-  {
-    id: "6",
-    task: "Review budget",
-    category: "Finance",
-    done: false,
-    archived: false,
-    due: "2026-02-28",
-    description: "Review monthly expenses and adjust budget categories for next quarter",
-  },
-  {
-    id: "7",
-    task: "Call mom",
-    category: "Personal",
-    done: true,
-    archived: false,
-    due: "2026-02-11",
-    description: "Weekly catch-up call with mom to discuss family updates",
-  },
-  {
-    id: "8",
-    task: "Fix production bug",
-    category: "Work",
-    done: false,
-    archived: false,
-    due: "2026-02-12",
-    description: "Critical bug causing user authentication failures. Affecting 5% of users.",
-  },
-];
-
-const CATEGORIES = ["All", "Work", "Personal", "Health", "Finance"];
+import { ActionPanel, List, Action, Icon, Form, confirmAlert, Alert } from "@raycast/api";
+import { useState, useEffect } from "react";
+import { fetchTasks, updateTask, deleteTask } from "./api/tasks";
+import { fetchCategories } from "./api/categories";
+import { formatRelativeDate, isOverdue } from "./utils/formatters";
+import { hasConfig } from "./utils/config";
+import { TaskForm } from "./components/TaskForm";
+import { CategoryForm } from "./components/CategoryForm";
+import { ConfigurationForm } from "./components/ConfigurationForm";
+import type { Task, TaskCategory } from "./types";
 
 export default function Command() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
   const [showingDetail, setShowingDetail] = useState<boolean>(false);
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
+  const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [categories, setCategories] = useState<TaskCategory[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [taskDescriptions, setTaskDescriptions] = useState<Record<number, string>>({});
+  const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
 
-  const toggleTaskDone = (taskId: string) => {
-    setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)));
-  };
+  // Check configuration on mount
+  useEffect(() => {
+    checkConfiguration();
+  }, []);
 
-  const toggleTaskArchived = (taskId: string) => {
-    setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...t, archived: !t.archived } : t)));
-  };
+  async function checkConfiguration() {
+    const configured = await hasConfig();
+    setIsConfigured(configured);
+    if (configured) {
+      loadData();
+    } else {
+      setIsLoading(false);
+    }
+  }
 
-  const updateTaskDescription = (taskId: string, description: string) => {
-    setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...t, description } : t)));
-  };
+  async function loadData() {
+    setIsLoading(true);
+    const [fetchedCategories, fetchedTasks] = await Promise.all([fetchCategories(), fetchTasks()]);
+    setCategories(fetchedCategories);
+    setTasks(fetchedTasks);
+    setIsLoading(false);
+  }
+
+  async function handleToggleDone(task: Task) {
+    const updated = await updateTask(task.id, { done: !task.done });
+    if (updated) {
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, done: !t.done } : t)));
+    }
+  }
+
+  async function handleToggleArchived(task: Task) {
+    const updated = await updateTask(task.id, { archived: !task.archived });
+    if (updated) {
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, archived: !t.archived } : t)));
+    }
+  }
+
+  async function handleDeleteTask(task: Task) {
+    const success = await deleteTask(task.id);
+    if (success) {
+      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    }
+  }
+
+  function updateTaskDescription(taskId: number, description: string) {
+    setTaskDescriptions((prev) => ({ ...prev, [taskId]: description }));
+  }
 
   const filteredTasks = tasks.filter((task) => {
-    const matchesCategory = selectedCategory === "All" || task.category === selectedCategory;
+    // Filter by archived status
+    if (!showArchived && task.archived) {
+      return false;
+    }
+
+    // Filter by category
+    const matchesCategory = selectedCategory === "All" || task.categoryId.toString() === selectedCategory;
+
+    // Filter by search text
     const matchesSearch = task.task.toLowerCase().includes(searchText.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
+
+  function getCategoryName(task: Task): string {
+    const category = categories.find((cat) => cat.id === task.categoryId);
+    return category?.category || "Unknown";
+  }
+
+  // Show configuration form if not configured
+  if (isConfigured === false) {
+    return (
+      <List isLoading={false}>
+        <List.EmptyView
+          icon={Icon.Gear}
+          title="Configuration Required"
+          description="Please configure your n8n webhook endpoints to get started"
+          actions={
+            <ActionPanel>
+              <Action.Push
+                title="Configure Endpoints"
+                icon={Icon.Gear}
+                target={<ConfigurationForm onSuccess={checkConfiguration} />}
+              />
+            </ActionPanel>
+          }
+        />
+      </List>
+    );
+  }
+
+  // Show loading while checking configuration
+  if (isConfigured === null) {
+    return <List isLoading={true} />;
+  }
 
   return (
     <List
@@ -116,104 +121,212 @@ export default function Command() {
       searchText={searchText}
       onSearchTextChange={setSearchText}
       isShowingDetail={showingDetail}
+      isLoading={isLoading}
       searchBarAccessory={
         <List.Dropdown tooltip="Select Category" value={selectedCategory} onChange={setSelectedCategory}>
-          {CATEGORIES.map((category) => (
-            <List.Dropdown.Item key={category} title={category} value={category} />
+          <List.Dropdown.Item title="All" value="All" />
+          {categories.map((category) => (
+            <List.Dropdown.Item key={category.id} title={category.category} value={category.id.toString()} />
           ))}
         </List.Dropdown>
       }
     >
-      <List.Section title="Tasks" subtitle={`${filteredTasks.length} tasks`}>
-        {filteredTasks.map((task) => (
-          <List.Item
-            key={task.id}
-            icon={task.done ? Icon.CheckCircle : Icon.Circle}
-            title={task.task}
-            subtitle={!showingDetail ? task.category : undefined}
-            accessories={
-              !showingDetail
-                ? [
-                    { text: task.done ? "Done" : "Pending" },
-                    { tag: { value: task.category, color: getCategoryColor(task.category) } },
-                  ]
-                : undefined
-            }
-            detail={
-              <List.Item.Detail
-                markdown={generateTaskMarkdown(task)}
-                metadata={
-                  <List.Item.Detail.Metadata>
-                    <List.Item.Detail.Metadata.Label title="Task" text={task.task} />
-                    <List.Item.Detail.Metadata.Separator />
-                    <List.Item.Detail.Metadata.Label
-                      title="Status"
-                      text={task.done ? "Done" : "Pending"}
-                      icon={task.done ? Icon.CheckCircle : Icon.Circle}
+      {filteredTasks.length === 0 ? (
+        <List.EmptyView
+          icon={Icon.Checkmark}
+          title={showArchived ? "No tasks found" : "No active tasks"}
+          description={
+            showArchived
+              ? "Create a new task with Cmd+N"
+              : "All tasks completed! Create a new task with Cmd+N or show archived with Cmd+Shift+A"
+          }
+          actions={
+            <ActionPanel>
+              <Action.Push
+                title="Create Task"
+                icon={Icon.Plus}
+                target={<TaskForm categories={categories} initialTaskName={searchText} onSuccess={loadData} />}
+                shortcut={{ modifiers: ["cmd"], key: "n" }}
+              />
+              <Action
+                title={showArchived ? "Hide Archived" : "Show Archived"}
+                icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
+                onAction={() => setShowArchived(!showArchived)}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+              />
+              <Action.Push
+                title="Settings"
+                icon={Icon.Gear}
+                target={<ConfigurationForm onSuccess={checkConfiguration} />}
+                shortcut={{ modifiers: ["cmd"], key: "," }}
+              />
+            </ActionPanel>
+          }
+        />
+      ) : (
+        <List.Section title="Tasks" subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? "s" : ""}`}>
+          {filteredTasks.map((task) => {
+            const categoryName = getCategoryName(task);
+            const overdue = !task.done && isOverdue(task.due);
+
+            return (
+              <List.Item
+                key={task.id}
+                icon={task.done ? Icon.CheckCircle : Icon.Circle}
+                title={task.task}
+                subtitle={!showingDetail ? categoryName : undefined}
+                accessories={
+                  !showingDetail
+                    ? [
+                        {
+                          text: formatRelativeDate(task.due),
+                          ...(overdue ? { icon: { source: Icon.ExclamationMark, tintColor: "#FF0000" } } : {}),
+                        },
+                        { tag: { value: categoryName, color: getCategoryColor(categoryName) } },
+                        ...(task.archived ? [{ icon: Icon.Box }] : []),
+                      ]
+                    : undefined
+                }
+                detail={
+                  <List.Item.Detail
+                    markdown={generateTaskMarkdown(task, categoryName, taskDescriptions[task.id])}
+                    metadata={
+                      <List.Item.Detail.Metadata>
+                        <List.Item.Detail.Metadata.Label title="Task" text={task.task} />
+                        <List.Item.Detail.Metadata.Separator />
+                        <List.Item.Detail.Metadata.Label
+                          title="Status"
+                          text={task.done ? "Done" : "Pending"}
+                          icon={task.done ? Icon.CheckCircle : Icon.Circle}
+                        />
+                        <List.Item.Detail.Metadata.Label title="Category" text={categoryName} />
+                        <List.Item.Detail.Metadata.Label
+                          title="Archived"
+                          text={task.archived ? "Yes" : "No"}
+                          icon={task.archived ? Icon.Box : Icon.Circle}
+                        />
+                        <List.Item.Detail.Metadata.Separator />
+                        <List.Item.Detail.Metadata.Label
+                          title="Due Date"
+                          text={`${formatRelativeDate(task.due)}${overdue ? " (Overdue)" : ""}`}
+                          icon={overdue ? { source: Icon.ExclamationMark, tintColor: "#FF0000" } : undefined}
+                        />
+                        <List.Item.Detail.Metadata.Separator />
+                        <List.Item.Detail.Metadata.Label
+                          title="Description"
+                          text={taskDescriptions[task.id] || "No description"}
+                        />
+                      </List.Item.Detail.Metadata>
+                    }
+                  />
+                }
+                actions={
+                  <ActionPanel>
+                    <Action
+                      title={showingDetail ? "Hide Details" : "Show Details"}
+                      icon={showingDetail ? Icon.EyeDisabled : Icon.Eye}
+                      onAction={() => setShowingDetail(!showingDetail)}
+                      shortcut={{ modifiers: ["cmd"], key: "d" }}
                     />
-                    <List.Item.Detail.Metadata.Label title="Category" text={task.category} />
-                    <List.Item.Detail.Metadata.Label
-                      title="Archived"
-                      text={task.archived ? "Yes" : "No"}
-                      icon={task.archived ? Icon.Box : Icon.Circle}
+                    <Action
+                      title="Toggle Done"
+                      icon={Icon.Check}
+                      onAction={() => handleToggleDone(task)}
+                      shortcut={{ modifiers: ["cmd"], key: "enter" }}
                     />
-                    <List.Item.Detail.Metadata.Separator />
-                    <List.Item.Detail.Metadata.Label title="Due Date" text={task.due} />
-                    <List.Item.Detail.Metadata.Separator />
-                    <List.Item.Detail.Metadata.Label title="Description" text={task.description || "No description"} />
-                  </List.Item.Detail.Metadata>
+                    <Action
+                      title="Toggle Archive"
+                      icon={Icon.Box}
+                      onAction={() => handleToggleArchived(task)}
+                      shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+                    />
+                    <Action.Push
+                      title="Edit Task"
+                      icon={Icon.Pencil}
+                      target={<TaskForm categories={categories} task={task} onSuccess={loadData} />}
+                      shortcut={{ modifiers: ["cmd"], key: "e" }}
+                    />
+                    <Action.Push
+                      title="Edit Description"
+                      icon={Icon.Text}
+                      target={
+                        <TaskDescriptionForm
+                          task={task}
+                          description={taskDescriptions[task.id]}
+                          onSave={(description) => updateTaskDescription(task.id, description)}
+                        />
+                      }
+                      shortcut={{ modifiers: ["cmd", "shift"], key: "e" }}
+                    />
+                    <Action
+                      title="Delete Task"
+                      icon={Icon.Trash}
+                      style={Action.Style.Destructive}
+                      onAction={async () => {
+                        if (
+                          await confirmAlert({
+                            title: "Delete Task",
+                            message: `Are you sure you want to delete "${task.task}"?`,
+                            primaryAction: { title: "Delete", style: Alert.ActionStyle.Destructive },
+                          })
+                        ) {
+                          handleDeleteTask(task);
+                        }
+                      }}
+                      shortcut={{ modifiers: ["cmd"], key: "backspace" }}
+                    />
+                    <ActionPanel.Section>
+                      <Action.Push
+                        title="Create New Task"
+                        icon={Icon.Plus}
+                        target={<TaskForm categories={categories} initialTaskName={searchText} onSuccess={loadData} />}
+                        shortcut={{ modifiers: ["cmd"], key: "n" }}
+                      />
+                      <Action.Push
+                        title="Create New Category"
+                        icon={Icon.Tag}
+                        target={<CategoryForm onSuccess={loadData} />}
+                        shortcut={{ modifiers: ["cmd", "shift"], key: "n" }}
+                      />
+                      <Action
+                        title={showArchived ? "Hide Archived" : "Show Archived"}
+                        icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
+                        onAction={() => setShowArchived(!showArchived)}
+                      />
+                      <Action
+                        title="Refresh"
+                        icon={Icon.ArrowClockwise}
+                        onAction={loadData}
+                        shortcut={{ modifiers: ["cmd"], key: "r" }}
+                      />
+                      <Action.Push
+                        title="Settings"
+                        icon={Icon.Gear}
+                        target={<ConfigurationForm onSuccess={checkConfiguration} />}
+                        shortcut={{ modifiers: ["cmd"], key: "," }}
+                      />
+                    </ActionPanel.Section>
+                  </ActionPanel>
                 }
               />
-            }
-            actions={
-              <ActionPanel>
-                <Action
-                  title={showingDetail ? "Hide Details" : "Show Details"}
-                  icon={showingDetail ? Icon.EyeDisabled : Icon.Eye}
-                  onAction={() => setShowingDetail(!showingDetail)}
-                  shortcut={{ modifiers: ["cmd"], key: "d" }}
-                />
-                <Action
-                  title="Toggle Done"
-                  icon={Icon.Check}
-                  onAction={() => toggleTaskDone(task.id)}
-                  shortcut={{ modifiers: ["cmd"], key: "enter" }}
-                />
-                <Action
-                  title="Toggle Archive"
-                  icon={Icon.Box}
-                  onAction={() => toggleTaskArchived(task.id)}
-                  shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
-                />
-                <Action.Push
-                  title="Edit Description"
-                  icon={Icon.Pencil}
-                  target={
-                    <TaskDescriptionForm
-                      task={task}
-                      onSave={(description) => updateTaskDescription(task.id, description)}
-                    />
-                  }
-                  shortcut={{ modifiers: ["cmd"], key: "e" }}
-                />
-                <Action
-                  title="Delete Task"
-                  icon={Icon.Trash}
-                  style={Action.Style.Destructive}
-                  onAction={() => console.log("Delete", task.id)}
-                  shortcut={{ modifiers: ["cmd"], key: "backspace" }}
-                />
-              </ActionPanel>
-            }
-          />
-        ))}
-      </List.Section>
+            );
+          })}
+        </List.Section>
+      )}
     </List>
   );
 }
 
-function TaskDescriptionForm({ task, onSave }: { task: Task; onSave: (description: string) => void }) {
-  const [description, setDescription] = useState<string>(task.description || "");
+function TaskDescriptionForm({
+  task,
+  description,
+  onSave,
+}: {
+  task: Task;
+  description?: string;
+  onSave: (description: string) => void;
+}) {
+  const [localDescription, setLocalDescription] = useState<string>(description || "");
 
   return (
     <Form
@@ -222,7 +335,7 @@ function TaskDescriptionForm({ task, onSave }: { task: Task; onSave: (descriptio
           <Action.SubmitForm
             title="Save Description"
             onSubmit={() => {
-              onSave(description);
+              onSave(localDescription);
             }}
           />
         </ActionPanel>
@@ -234,34 +347,36 @@ function TaskDescriptionForm({ task, onSave }: { task: Task; onSave: (descriptio
         id="description"
         title="Description"
         placeholder="Enter task description..."
-        value={description}
-        onChange={setDescription}
+        value={localDescription}
+        onChange={setLocalDescription}
       />
     </Form>
   );
 }
 
-function generateTaskMarkdown(task: Task): string {
+function generateTaskMarkdown(task: Task, categoryName: string, description?: string): string {
+  const overdue = !task.done && isOverdue(task.due);
   return `
 # ${task.task}
 
-${task.description || "_No description provided_"}
+${description || "_No description provided_"}
 
 ---
 
-**Category:** ${task.category}  
+**Category:** ${categoryName}  
 **Status:** ${task.done ? "✅ Done" : "⏳ Pending"}  
 **Archived:** ${task.archived ? "📦 Yes" : "No"}  
-**Due Date:** ${task.due}
+**Due Date:** ${formatRelativeDate(task.due)}${overdue ? " ⚠️ **Overdue**" : ""}
   `.trim();
 }
 
 function getCategoryColor(category: string): string {
-  const colors: Record<string, string> = {
-    Work: "#FF6B6B",
-    Personal: "#4ECDC4",
-    Health: "#95E1D3",
-    Finance: "#F38181",
-  };
-  return colors[category] || "#999999";
+  // Generate a consistent color based on category name hash
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) {
+    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const colors = ["#FF6B6B", "#4ECDC4", "#95E1D3", "#F38181", "#AA96DA", "#FCBAD3", "#FFFFD2", "#A8D8EA"];
+  return colors[Math.abs(hash) % colors.length];
 }
