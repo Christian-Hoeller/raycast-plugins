@@ -9,15 +9,7 @@ export function generateTaskMarkdown(task: Task, categoryName: string, descripti
   return `
 # ${task.task}
 
-${description || "_No description provided_"}
-
----
-
-**Category:** ${categoryName}  
-**Status:** ${task.done ? "✅ Done" : "⏳ Pending"}  
-**Archived:** ${task.archived ? "📦 Yes" : "No"}  
-**Due Date:** ${formatRelativeDate(task.due)}${overdue ? " ⚠️ **Overdue**" : ""}
-  `.trim();
+${description || "_No description provided_"}`.trim();
 }
 
 /**

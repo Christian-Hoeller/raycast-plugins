@@ -22,7 +22,7 @@ export default function Command() {
     filteredTasks,
   } = useTaskFilters(tasks);
   const { taskDescriptions, handleToggleDone, handleToggleArchived, handleDeleteTask, updateTaskDescription } =
-    useTaskActions(setTasks);
+    useTaskActions(tasks, setTasks);
 
   // Show configuration form if not configured
   if (isConfigured === false) {

@@ -1,12 +1,23 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { updateTask, deleteTask } from "../api/tasks";
 import type { Task } from "../types";
 
 /**
  * Custom hook for managing task actions (toggle done, archive, delete, descriptions)
  */
-export function useTaskActions(setTasks: React.Dispatch<React.SetStateAction<Task[]>>) {
+export function useTaskActions(tasks: Task[], setTasks: React.Dispatch<React.SetStateAction<Task[]>>) {
   const [taskDescriptions, setTaskDescriptions] = useState<Record<number, string>>({});
+
+  // Initialize descriptions from tasks
+  useEffect(() => {
+    const descriptions: Record<number, string> = {};
+    tasks.forEach((task) => {
+      if (task.description) {
+        descriptions[task.id] = task.description;
+      }
+    });
+    setTaskDescriptions(descriptions);
+  }, [tasks]);
 
   const handleToggleDone = useCallback(
     async (task: Task) => {
@@ -38,9 +49,18 @@ export function useTaskActions(setTasks: React.Dispatch<React.SetStateAction<Tas
     [setTasks],
   );
 
-  const updateTaskDescription = useCallback((taskId: number, description: string) => {
-    setTaskDescriptions((prev) => ({ ...prev, [taskId]: description }));
-  }, []);
+  const updateTaskDescription = useCallback(
+    async (taskId: number, description: string) => {
+      console.log("updateTaskDescription called with:", { taskId, description });
+      const updated = await updateTask(taskId, { description });
+      console.log("updateTask returned:", updated);
+      if (updated) {
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, description } : t)));
+        setTaskDescriptions((prev) => ({ ...prev, [taskId]: description }));
+      }
+    },
+    [setTasks],
+  );
 
   return {
     taskDescriptions,

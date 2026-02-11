@@ -1,4 +1,4 @@
-import { ActionPanel, Action, Form } from "@raycast/api";
+import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import type { Task } from "../types";
 
@@ -10,6 +10,7 @@ interface TaskDescriptionFormProps {
 
 export function TaskDescriptionForm({ task, description, onSave }: TaskDescriptionFormProps) {
   const [localDescription, setLocalDescription] = useState<string>(description || "");
+  const { pop } = useNavigation();
 
   return (
     <Form
@@ -17,8 +18,9 @@ export function TaskDescriptionForm({ task, description, onSave }: TaskDescripti
         <ActionPanel>
           <Action.SubmitForm
             title="Save Description"
-            onSubmit={() => {
-              onSave(localDescription);
+            onSubmit={(values: { description: string }) => {
+              onSave(values.description);
+              pop();
             }}
           />
         </ActionPanel>

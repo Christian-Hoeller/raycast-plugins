@@ -28,6 +28,7 @@ export interface UpdateTaskPayload {
   archived?: boolean;
   due?: string;
   categoryId?: number;
+  description?: string;
 }
 
 export interface CreateCategoryPayload {
