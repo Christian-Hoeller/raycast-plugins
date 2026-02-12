@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { filterTasks } from "../utils/taskHelpers";
+import { filterTasks, sortTasks } from "../utils/taskHelpers";
 import type { Task } from "../types";
 
 /**
@@ -11,10 +11,10 @@ export function useTaskFilters(tasks: Task[]) {
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [showingDetail, setShowingDetail] = useState<boolean>(false);
 
-  const filteredTasks = useMemo(
-    () => filterTasks(tasks, selectedCategory, showArchived, searchText),
-    [tasks, selectedCategory, showArchived, searchText],
-  );
+  const filteredTasks = useMemo(() => {
+    const filtered = filterTasks(tasks, selectedCategory, showArchived, searchText);
+    return sortTasks(filtered);
+  }, [tasks, selectedCategory, showArchived, searchText]);
 
   return {
     selectedCategory,

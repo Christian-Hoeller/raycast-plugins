@@ -36,3 +36,18 @@ export function filterTasks(
     return matchesCategory && matchesSearch;
   });
 }
+
+/**
+ * Sort tasks: done tasks at bottom, then by createdAt date (newest first)
+ */
+export function sortTasks(tasks: Task[]): Task[] {
+  return [...tasks].sort((a, b) => {
+    // Done tasks go to the bottom
+    if (a.done !== b.done) {
+      return a.done ? 1 : -1;
+    }
+
+    // Sort by createdAt (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
