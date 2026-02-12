@@ -107,6 +107,13 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
       }
     >
       <Form.TextField id="task" title="Task" placeholder="Enter task name" value={taskName} onChange={setTaskName} />
+      <Form.TextArea
+        id="description"
+        title="Description"
+        placeholder="Optional task description"
+        value={description}
+        onChange={setDescription}
+      />
       <Form.Dropdown id="category" title="Category" value={categoryId} onChange={setCategoryId}>
         <Form.Dropdown.Item value="" title="Select a category" />
         {categories.map((cat) => (
@@ -118,13 +125,6 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         <Form.Dropdown.Item value="tomorrow" title="Tomorrow" />
         <Form.Dropdown.Item value="2days" title="2 days from now" />
       </Form.Dropdown>
-      <Form.TextArea
-        id="description"
-        title="Description"
-        placeholder="Optional task description"
-        value={description}
-        onChange={setDescription}
-      />
     </Form>
   );
 }
