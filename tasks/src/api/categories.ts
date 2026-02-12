@@ -24,7 +24,7 @@ export async function fetchCategories(): Promise<TaskCategory[]> {
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? data.filter((cat) => cat && cat.category) : [];
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,

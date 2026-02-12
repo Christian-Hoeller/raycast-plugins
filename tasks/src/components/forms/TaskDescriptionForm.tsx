@@ -1,6 +1,6 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState } from "react";
-import type { Task } from "../types";
+import type { Task } from "../../types";
 
 interface TaskDescriptionFormProps {
   task: Task;

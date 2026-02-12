@@ -1,7 +1,7 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState } from "react";
-import { createCategory } from "../api/categories";
-import type { CreateCategoryPayload } from "../types";
+import { createCategory } from "../../api/categories";
+import type { CreateCategoryPayload } from "../../types";
 
 interface CategoryFormProps {
   onSuccess: () => void;

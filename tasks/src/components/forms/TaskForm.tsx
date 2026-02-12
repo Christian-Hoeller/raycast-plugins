@@ -1,9 +1,9 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import { addDays, startOfDay } from "date-fns";
-import { createTask, updateTask } from "../api/tasks";
-import { formatDateForAPI } from "../utils/formatters";
-import type { Task, TaskCategory, CreateTaskPayload, UpdateTaskPayload } from "../types";
+import { createTask, updateTask } from "../../api/tasks";
+import { formatDateForAPI } from "../../utils/formatters";
+import type { Task, TaskCategory, CreateTaskPayload, UpdateTaskPayload } from "../../types";
 
 interface TaskFormProps {
   categories: TaskCategory[];

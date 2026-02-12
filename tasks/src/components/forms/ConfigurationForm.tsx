@@ -1,7 +1,7 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState } from "react";
-import { saveConfig, getDefaultConfig } from "../utils/config";
-import type { Config } from "../utils/config";
+import { saveConfig, getDefaultConfig } from "../../utils/config";
+import type { Config } from "../../utils/config";
 
 interface ConfigurationFormProps {
   onSuccess: () => void;

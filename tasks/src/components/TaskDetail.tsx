@@ -17,6 +17,7 @@ export function TaskDetail({ task, categoryName, description }: TaskDetailProps)
       markdown={generateTaskMarkdown(task, categoryName, description)}
       metadata={
         <List.Item.Detail.Metadata>
+          <List.Item.Detail.Metadata.Label title="Id" icon={task.archived ? Icon.Key : Icon.Circle} />
           <List.Item.Detail.Metadata.Label title="Category" text={categoryName} />
           <List.Item.Detail.Metadata.Label title="Archived" icon={task.archived ? Icon.Box : Icon.Circle} />
           <List.Item.Detail.Metadata.Label

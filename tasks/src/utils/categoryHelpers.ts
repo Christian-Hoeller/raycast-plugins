@@ -3,11 +3,12 @@ import type { Task, TaskCategory } from "../types";
 /**
  * Generate a consistent color based on category name hash
  */
-export function getCategoryColor(category: string): string {
+export function getCategoryColor(category: string | null | undefined): string {
   // Generate a consistent color based on category name hash
+  const safeCategoryName = category || "Unknown";
   let hash = 0;
-  for (let i = 0; i < category.length; i++) {
-    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < safeCategoryName.length; i++) {
+    hash = safeCategoryName.charCodeAt(i) + ((hash << 5) - hash);
   }
 
   const colors = ["#FF6B6B", "#4ECDC4", "#95E1D3", "#F38181", "#AA96DA", "#FCBAD3", "#FFFFD2", "#A8D8EA"];

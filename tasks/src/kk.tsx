@@ -3,8 +3,8 @@ import { useTasksData } from "./hooks/useTasksData";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { getCategoryName } from "./utils/categoryHelpers";
-import { TaskForm } from "./components/TaskForm";
-import { ConfigurationForm } from "./components/ConfigurationForm";
+import { TaskForm } from "./components/forms/TaskForm";
+import { ConfigurationForm } from "./components/forms/ConfigurationForm";
 import { TaskListItem } from "./components/TaskListItem";
 
 export default function Command() {
@@ -62,7 +62,7 @@ export default function Command() {
         <List.Dropdown tooltip="Select Category" value={selectedCategory} onChange={setSelectedCategory}>
           <List.Dropdown.Item title="All" value="All" />
           {categories.map((category) => (
-            <List.Dropdown.Item key={category.id} title={category.category} value={category.id.toString()} />
+            <List.Dropdown.Item key={category.id} title={category.category || "Unnamed"} value={category.id.toString()} />
           ))}
         </List.Dropdown>
       }

@@ -1,10 +1,10 @@
 import { ActionPanel, List, Action, Icon, confirmAlert, Alert } from "@raycast/api";
 import { formatRelativeDate, isOverdue } from "../utils/formatters";
 import { getCategoryColor } from "../utils/categoryHelpers";
-import { TaskForm } from "./TaskForm";
-import { CategoryForm } from "./CategoryForm";
-import { ConfigurationForm } from "./ConfigurationForm";
-import { TaskDescriptionForm } from "./TaskDescriptionForm";
+import { TaskForm } from "./forms/TaskForm";
+import { CategoryForm } from "./forms/CategoryForm";
+import { ConfigurationForm } from "./forms/ConfigurationForm";
+import { TaskDescriptionForm } from "./forms/TaskDescriptionForm";
 import { TaskDetail } from "./TaskDetail";
 import type { Task, TaskCategory } from "../types";
 

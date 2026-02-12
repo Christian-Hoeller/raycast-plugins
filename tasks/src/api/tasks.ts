@@ -24,7 +24,7 @@ export async function fetchTasks(): Promise<Task[]> {
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? data.filter((task) => task && task.task) : [];
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
