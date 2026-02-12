@@ -2,11 +2,11 @@ import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import type { Task } from "../../types";
 
-interface TaskDescriptionFormProps {
+type TaskDescriptionFormProps = {
   task: Task;
   description?: string;
   onSave: (description: string) => void;
-}
+};
 
 export function TaskDescriptionForm({ task, description, onSave }: TaskDescriptionFormProps) {
   const [localDescription, setLocalDescription] = useState<string>(description || "");

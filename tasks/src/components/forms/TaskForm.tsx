@@ -5,12 +5,12 @@ import { createTask, updateTask } from "../../api/tasks";
 import { formatDateForAPI } from "../../utils/formatters";
 import type { Task, TaskCategory, CreateTaskPayload, UpdateTaskPayload } from "../../types";
 
-interface TaskFormProps {
+type TaskFormProps = {
   categories: TaskCategory[];
   task?: Task;
   initialTaskName?: string;
   onSuccess: () => void;
-}
+};
 
 export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskFormProps) {
   const { pop } = useNavigation();

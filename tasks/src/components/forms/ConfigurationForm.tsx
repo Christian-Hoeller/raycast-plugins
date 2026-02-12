@@ -3,9 +3,9 @@ import { useState } from "react";
 import { saveConfig, getDefaultConfig } from "../../utils/config";
 import type { Config } from "../../utils/config";
 
-interface ConfigurationFormProps {
+type ConfigurationFormProps = {
   onSuccess: () => void;
-}
+};
 
 export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
   const { pop } = useNavigation();

@@ -3,11 +3,11 @@ import { generateTaskMarkdown } from "../utils/taskHelpers";
 import { formatRelativeDate, isOverdue } from "../utils/formatters";
 import type { Task } from "../types";
 
-interface TaskDetailProps {
+type TaskDetailProps = {
   task: Task;
   categoryName: string;
   description?: string;
-}
+};
 
 export function TaskDetail({ task, categoryName, description }: TaskDetailProps) {
   const overdue = !task.done && isOverdue(task.due);

@@ -3,9 +3,9 @@ import { useState } from "react";
 import { createCategory } from "../../api/categories";
 import type { CreateCategoryPayload } from "../../types";
 
-interface CategoryFormProps {
+type CategoryFormProps = {
   onSuccess: () => void;
-}
+};
 
 export function CategoryForm({ onSuccess }: CategoryFormProps) {
   const { pop } = useNavigation();

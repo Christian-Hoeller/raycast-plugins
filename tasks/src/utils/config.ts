@@ -1,6 +1,6 @@
 import { LocalStorage } from "@raycast/api";
 
-export interface Config {
+export type Config = {
   GET_ALL_TASKS_ENDPOINT: string;
   CREATE_TASK_ENDPOINT: string;
   UPDATE_TASK_ENDPOINT: string;
@@ -8,7 +8,7 @@ export interface Config {
   GET_TASK_CATEGORIES_ENDPOINT: string;
   CREATE_TASK_CATEGORY_ENDPOINT: string;
   DELETE_TASK_CATEGORIES_ENDPOINT: string;
-}
+};
 
 const CONFIG_KEY = "endpoint_config";
 

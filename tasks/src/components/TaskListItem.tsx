@@ -8,7 +8,7 @@ import { TaskDescriptionForm } from "./forms/TaskDescriptionForm";
 import { TaskDetail } from "./TaskDetail";
 import type { Task, TaskCategory } from "../types";
 
-interface TaskListItemProps {
+type TaskListItemProps = {
   task: Task;
   categoryName: string;
   categories: TaskCategory[];
@@ -24,7 +24,7 @@ interface TaskListItemProps {
   onShowArchivedToggle: () => void;
   onRefresh: () => void;
   onCheckConfiguration: () => void;
-}
+};
 
 export function TaskListItem({
   task,
