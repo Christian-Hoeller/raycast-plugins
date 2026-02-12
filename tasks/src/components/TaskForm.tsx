@@ -36,6 +36,7 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
     task?.categoryId !== undefined ? task.categoryId.toString() : "",
   );
   const [dueDateOption, setDueDateOption] = useState<string>(getInitialDueDateOption());
+  const [description, setDescription] = useState<string>(task?.description || "");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Helper function to convert dropdown option to Date
@@ -67,6 +68,7 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         task: taskName.trim(),
         categoryId: parseInt(categoryId, 10),
         due: formatDateForAPI(dueDate),
+        ...(description.trim() && { description: description.trim() }),
       };
 
       const result = await updateTask(task.id, payload);
@@ -82,6 +84,7 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         task: taskName.trim(),
         categoryId: parseInt(categoryId, 10),
         due: formatDateForAPI(dueDate),
+        ...(description.trim() && { description: description.trim() }),
       };
 
       const result = await createTask(payload);
@@ -115,6 +118,13 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         <Form.Dropdown.Item value="tomorrow" title="Tomorrow" />
         <Form.Dropdown.Item value="2days" title="2 days from now" />
       </Form.Dropdown>
+      <Form.TextArea
+        id="description"
+        title="Description"
+        placeholder="Optional task description"
+        value={description}
+        onChange={setDescription}
+      />
     </Form>
   );
 }

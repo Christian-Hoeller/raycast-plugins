@@ -20,6 +20,7 @@ export interface CreateTaskPayload {
   task: string;
   due: string;
   categoryId: number;
+  description?: string;
 }
 
 export interface UpdateTaskPayload {
