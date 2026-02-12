@@ -3,6 +3,7 @@ import { useTasksData } from "./hooks/useTasksData";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { getCategoryName } from "./utils/categoryHelpers";
+import { getTaskCountByCategory } from "./utils/taskHelpers";
 import { TaskForm } from "./components/forms/TaskForm";
 import { ConfigurationForm } from "./components/forms/ConfigurationForm";
 import { TaskListItem } from "./components/TaskListItem";
@@ -60,9 +61,13 @@ export default function Command() {
       isLoading={isLoading}
       searchBarAccessory={
         <List.Dropdown tooltip="Select Category" value={selectedCategory} onChange={setSelectedCategory}>
-          <List.Dropdown.Item title="All" value="All" />
+          <List.Dropdown.Item title={`All • ${getTaskCountByCategory(tasks, "All")}`} value="All" />
           {categories.map((category) => (
-            <List.Dropdown.Item key={category.id} title={category.category || "Unnamed"} value={category.id.toString()} />
+            <List.Dropdown.Item
+              key={category.id}
+              title={`${category.category || "Unnamed"} • ${getTaskCountByCategory(tasks, category.id)}`}
+              value={category.id.toString()}
+            />
           ))}
         </List.Dropdown>
       }

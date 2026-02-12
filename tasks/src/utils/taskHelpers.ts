@@ -51,3 +51,14 @@ export function sortTasks(tasks: Task[]): Task[] {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 }
+
+/**
+ * Get count of non-done, non-archived tasks for a specific category
+ */
+export function getTaskCountByCategory(tasks: Task[], categoryId: number | string): number {
+  return tasks.filter((task) => {
+    const isActive = !task.done && !task.archived;
+    const matchesCategory = categoryId === "All" || task.categoryId.toString() === categoryId.toString();
+    return isActive && matchesCategory;
+  }).length;
+}
