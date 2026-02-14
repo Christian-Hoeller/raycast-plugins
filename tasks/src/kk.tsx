@@ -1,6 +1,7 @@
 import { ActionPanel, List, Action, Icon } from "@raycast/api";
 import { useState } from "react";
 import { useTasksData } from "./hooks/useTasksData";
+import { useCodingProjectsData } from "./hooks/useCodingProjectsData";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { getCategoryName } from "./utils/categoryHelpers";
@@ -13,6 +14,7 @@ export default function Command() {
   // Custom hooks for data management
   const { tasks, setTasks, categories, priorities, isLoading, isConfigured, loadData, checkConfiguration } =
     useTasksData();
+  const { projects: codingProjects } = useCodingProjectsData();
   const [sortMode, setSortMode] = useState<SortMode>("createdAt");
   const {
     selectedCategory,
@@ -125,27 +127,32 @@ export default function Command() {
           title="Tasks"
           subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? "s" : ""} • Sorted by ${sortMode === "priority" ? "Priority" : "Date"}`}
         >
-          {filteredTasks.map((task) => (
-            <TaskListItem
-              key={task.id}
-              task={task}
-              categoryName={getCategoryName(task, categories)}
-              categories={categories}
-              priorities={priorities}
-              showingDetail={showingDetail}
-              showArchived={showArchived}
-              searchText={searchText}
-              description={taskDescriptions[task.id]}
-              onToggleDetail={() => setShowingDetail(!showingDetail)}
-              onToggleDone={handleToggleDone}
-              onToggleArchived={handleToggleArchived}
-              onDelete={handleDeleteTask}
-              onUpdateDescription={updateTaskDescription}
-              onShowArchivedToggle={() => setShowArchived(!showArchived)}
-              onRefresh={loadData}
-              onCheckConfiguration={checkConfiguration}
-            />
-          ))}
+          {filteredTasks.map((task) => {
+            const category = categories.find((cat) => cat.id === task.categoryId);
+            return (
+              <TaskListItem
+                key={task.id}
+                task={task}
+                category={category!}
+                categoryName={getCategoryName(task, categories)}
+                categories={categories}
+                priorities={priorities}
+                codingProjects={codingProjects}
+                showingDetail={showingDetail}
+                showArchived={showArchived}
+                searchText={searchText}
+                description={taskDescriptions[task.id]}
+                onToggleDetail={() => setShowingDetail(!showingDetail)}
+                onToggleDone={handleToggleDone}
+                onToggleArchived={handleToggleArchived}
+                onDelete={handleDeleteTask}
+                onUpdateDescription={updateTaskDescription}
+                onShowArchivedToggle={() => setShowArchived(!showArchived)}
+                onRefresh={loadData}
+                onCheckConfiguration={checkConfiguration}
+              />
+            );
+          })}
         </List.Section>
       )}
     </List>
