@@ -1,15 +1,17 @@
 import { List, Icon } from "@raycast/api";
 import { generateTaskMarkdown } from "../utils/taskHelpers";
 import { formatRelativeDate, isOverdue } from "../utils/formatters";
-import type { Task } from "../types";
+import { getPriorityName, getPriorityColor } from "../utils/priorityHelpers";
+import type { Task, Priority } from "../types";
 
 type TaskDetailProps = {
   task: Task;
   categoryName: string;
+  priorities: Priority[];
   description?: string;
 };
 
-export function TaskDetail({ task, categoryName, description }: TaskDetailProps) {
+export function TaskDetail({ task, categoryName, priorities, description }: TaskDetailProps) {
   const overdue = !task.done && isOverdue(task.due);
 
   return (
@@ -19,6 +21,12 @@ export function TaskDetail({ task, categoryName, description }: TaskDetailProps)
         <List.Item.Detail.Metadata>
           <List.Item.Detail.Metadata.Label title="Id" text={`${task.id}`} />
           <List.Item.Detail.Metadata.Label title="Category" text={categoryName} />
+          <List.Item.Detail.Metadata.TagList title="Priority">
+            <List.Item.Detail.Metadata.TagList.Item
+              text={getPriorityName(priorities, task.priorityId)}
+              color={getPriorityColor(priorities, task.priorityId)}
+            />
+          </List.Item.Detail.Metadata.TagList>
           <List.Item.Detail.Metadata.Label title="Archived" icon={task.archived ? Icon.Box : Icon.Circle} />
           <List.Item.Detail.Metadata.Label
             title="Due Date"

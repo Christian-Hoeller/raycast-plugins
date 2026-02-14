@@ -1,16 +1,19 @@
 import { ActionPanel, List, Action, Icon } from "@raycast/api";
+import { useState } from "react";
 import { useTasksData } from "./hooks/useTasksData";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { getCategoryName } from "./utils/categoryHelpers";
-import { getTaskCountByCategory } from "./utils/taskHelpers";
+import { getTaskCountByCategory, type SortMode } from "./utils/taskHelpers";
 import { TaskForm } from "./components/forms/TaskForm";
 import { ConfigurationForm } from "./components/forms/ConfigurationForm";
 import { TaskListItem } from "./components/TaskListItem";
 
 export default function Command() {
   // Custom hooks for data management
-  const { tasks, setTasks, categories, isLoading, isConfigured, loadData, checkConfiguration } = useTasksData();
+  const { tasks, setTasks, categories, priorities, isLoading, isConfigured, loadData, checkConfiguration } =
+    useTasksData();
+  const [sortMode, setSortMode] = useState<SortMode>("createdAt");
   const {
     selectedCategory,
     setSelectedCategory,
@@ -21,7 +24,7 @@ export default function Command() {
     showingDetail,
     setShowingDetail,
     filteredTasks,
-  } = useTaskFilters(tasks);
+  } = useTaskFilters(tasks, priorities, sortMode);
   const { taskDescriptions, handleToggleDone, handleToggleArchived, handleDeleteTask, updateTaskDescription } =
     useTaskActions(tasks, setTasks);
 
@@ -86,7 +89,14 @@ export default function Command() {
               <Action.Push
                 title="Create Task"
                 icon={Icon.Plus}
-                target={<TaskForm categories={categories} initialTaskName={searchText} onSuccess={loadData} />}
+                target={
+                  <TaskForm
+                    categories={categories}
+                    priorities={priorities}
+                    initialTaskName={searchText}
+                    onSuccess={loadData}
+                  />
+                }
                 shortcut={{ modifiers: ["cmd"], key: "n" }}
               />
               <Action
@@ -94,6 +104,12 @@ export default function Command() {
                 icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
                 onAction={() => setShowArchived(!showArchived)}
                 shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+              />
+              <Action
+                title={`Sort by ${sortMode === "priority" ? "Date" : "Priority"}`}
+                icon={sortMode === "priority" ? Icon.Calendar : Icon.LevelMeter}
+                onAction={() => setSortMode(sortMode === "priority" ? "createdAt" : "priority")}
+                shortcut={{ modifiers: ["cmd"], key: "t" }}
               />
               <Action.Push
                 title="Settings"
@@ -105,13 +121,17 @@ export default function Command() {
           }
         />
       ) : (
-        <List.Section title="Tasks" subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? "s" : ""}`}>
+        <List.Section
+          title="Tasks"
+          subtitle={`${filteredTasks.length} task${filteredTasks.length !== 1 ? "s" : ""} • Sorted by ${sortMode === "priority" ? "Priority" : "Date"}`}
+        >
           {filteredTasks.map((task) => (
             <TaskListItem
               key={task.id}
               task={task}
               categoryName={getCategoryName(task, categories)}
               categories={categories}
+              priorities={priorities}
               showingDetail={showingDetail}
               showArchived={showArchived}
               searchText={searchText}

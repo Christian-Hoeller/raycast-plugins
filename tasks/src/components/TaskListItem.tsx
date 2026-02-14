@@ -1,17 +1,19 @@
 import { ActionPanel, List, Action, Icon, confirmAlert, Alert } from "@raycast/api";
 import { formatRelativeDate, isOverdue } from "../utils/formatters";
 import { getCategoryColor } from "../utils/categoryHelpers";
+import { getPriorityName, getPriorityColor } from "../utils/priorityHelpers";
 import { TaskForm } from "./forms/TaskForm";
 import { CategoryForm } from "./forms/CategoryForm";
 import { ConfigurationForm } from "./forms/ConfigurationForm";
 import { TaskDescriptionForm } from "./forms/TaskDescriptionForm";
 import { TaskDetail } from "./TaskDetail";
-import type { Task, TaskCategory } from "../types";
+import type { Task, TaskCategory, Priority } from "../types";
 
 type TaskListItemProps = {
   task: Task;
   categoryName: string;
   categories: TaskCategory[];
+  priorities: Priority[];
   showingDetail: boolean;
   showArchived: boolean;
   searchText: string;
@@ -30,6 +32,7 @@ export function TaskListItem({
   task,
   categoryName,
   categories,
+  priorities,
   showingDetail,
   showArchived,
   searchText,
@@ -57,12 +60,18 @@ export function TaskListItem({
                 text: formatRelativeDate(task.due),
                 ...(overdue ? { icon: { source: Icon.ExclamationMark, tintColor: "#FF0000" } } : {}),
               },
+              {
+                tag: {
+                  value: getPriorityName(priorities, task.priorityId),
+                  color: getPriorityColor(priorities, task.priorityId),
+                },
+              },
               { tag: { value: categoryName, color: getCategoryColor(categoryName) } },
               ...(task.archived ? [{ icon: Icon.Box }] : []),
             ]
           : undefined
       }
-      detail={<TaskDetail task={task} categoryName={categoryName} description={description} />}
+      detail={<TaskDetail task={task} categoryName={categoryName} priorities={priorities} description={description} />}
       actions={
         <ActionPanel>
           <Action
@@ -96,7 +105,7 @@ export function TaskListItem({
           <Action.Push
             title="Edit Task"
             icon={Icon.Pencil}
-            target={<TaskForm categories={categories} task={task} onSuccess={onRefresh} />}
+            target={<TaskForm categories={categories} priorities={priorities} task={task} onSuccess={onRefresh} />}
             shortcut={{ modifiers: ["cmd"], key: "e" }}
           />
           <Action.Push
@@ -132,7 +141,14 @@ export function TaskListItem({
             <Action.Push
               title="Create New Task"
               icon={Icon.Plus}
-              target={<TaskForm categories={categories} initialTaskName={searchText} onSuccess={onRefresh} />}
+              target={
+                <TaskForm
+                  categories={categories}
+                  priorities={priorities}
+                  initialTaskName={searchText}
+                  onSuccess={onRefresh}
+                />
+              }
               shortcut={{ modifiers: ["cmd"], key: "n" }}
             />
             <Action.Push

@@ -1,11 +1,11 @@
-import { formatRelativeDate, isOverdue } from "./formatters";
-import type { Task } from "../types";
+import type { Task, Priority } from "../types";
+
+export type SortMode = "priority" | "createdAt";
 
 /**
  * Generate markdown for task detail view
  */
 export function generateTaskMarkdown(task: Task, categoryName: string, description?: string): string {
-  const overdue = !task.done && isOverdue(task.due);
   return `
 # ${task.task}
 
@@ -38,17 +38,32 @@ export function filterTasks(
 }
 
 /**
- * Sort tasks: done tasks at bottom, then by createdAt date (newest first)
+ * Sort tasks: done tasks at bottom, then by priority or createdAt based on sortMode
  */
-export function sortTasks(tasks: Task[]): Task[] {
+export function sortTasks(tasks: Task[], priorities: Priority[], sortMode: SortMode = "createdAt"): Task[] {
   return [...tasks].sort((a, b) => {
     // Done tasks go to the bottom
     if (a.done !== b.done) {
       return a.done ? 1 : -1;
     }
 
-    // Sort by createdAt (newest first)
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    if (sortMode === "priority") {
+      // Priority mode: Higher level = higher priority (sort descending by level)
+      const aPriority = priorities.find((p) => p.id === a.priorityId);
+      const bPriority = priorities.find((p) => p.id === b.priorityId);
+      const aLevel = aPriority?.level || 0;
+      const bLevel = bPriority?.level || 0;
+
+      if (aLevel !== bLevel) {
+        return bLevel - aLevel; // Higher level first
+      }
+
+      // If same priority, fall back to createdAt
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    } else {
+      // Creation date mode (current behavior)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
   });
 }
 

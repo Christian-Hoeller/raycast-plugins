@@ -1,20 +1,23 @@
-import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
+import { ActionPanel, Action, Form, useNavigation, Icon } from "@raycast/api";
 import { useState } from "react";
 import { addDays, startOfDay } from "date-fns";
 import { createTask, updateTask } from "../../api/tasks";
 import { formatDateForAPI } from "../../utils/formatters";
-import type { Task, TaskCategory, CreateTaskPayload, UpdateTaskPayload } from "../../types";
+import { getLowestPriority, sortPrioritiesByLevel } from "../../utils/priorityHelpers";
+import type { Task, TaskCategory, Priority, CreateTaskPayload, UpdateTaskPayload } from "../../types";
 
 type TaskFormProps = {
   categories: TaskCategory[];
+  priorities: Priority[];
   task?: Task;
   initialTaskName?: string;
   onSuccess: () => void;
 };
 
-export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskFormProps) {
+export function TaskForm({ categories, priorities, task, initialTaskName, onSuccess }: TaskFormProps) {
   const { pop } = useNavigation();
   const isEditing = !!task;
+  const defaultPriority = getLowestPriority(priorities);
 
   // Helper function to determine initial due date option
   function getInitialDueDateOption(): string {
@@ -34,6 +37,9 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
   const [taskName, setTaskName] = useState<string>(task?.task || initialTaskName || "");
   const [categoryId, setCategoryId] = useState<string>(
     task?.categoryId !== undefined ? task.categoryId.toString() : "",
+  );
+  const [priorityId, setPriorityId] = useState<string>(
+    task?.priorityId !== undefined ? task.priorityId.toString() : defaultPriority.id.toString(),
   );
   const [dueDateOption, setDueDateOption] = useState<string>(getInitialDueDateOption());
   const [description, setDescription] = useState<string>(task?.description || "");
@@ -55,7 +61,7 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
   }
 
   async function handleSubmit() {
-    if (!taskName.trim() || !categoryId || !dueDateOption) {
+    if (!taskName.trim() || !categoryId || !priorityId || !dueDateOption) {
       return;
     }
 
@@ -67,6 +73,7 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
       const payload: UpdateTaskPayload = {
         task: taskName.trim(),
         categoryId: parseInt(categoryId, 10),
+        priorityId: parseInt(priorityId, 10),
         due: formatDateForAPI(dueDate),
         ...(description.trim() && { description: description.trim() }),
       };
@@ -83,6 +90,7 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
       const payload: CreateTaskPayload = {
         task: taskName.trim(),
         categoryId: parseInt(categoryId, 10),
+        priorityId: parseInt(priorityId, 10),
         due: formatDateForAPI(dueDate),
         ...(description.trim() && { description: description.trim() }),
       };
@@ -118,6 +126,16 @@ export function TaskForm({ categories, task, initialTaskName, onSuccess }: TaskF
         <Form.Dropdown.Item value="" title="Select a category" />
         {categories.map((cat) => (
           <Form.Dropdown.Item key={cat.id} value={cat.id.toString()} title={cat.category} />
+        ))}
+      </Form.Dropdown>
+      <Form.Dropdown id="priority" title="Priority" value={priorityId} onChange={setPriorityId}>
+        {sortPrioritiesByLevel(priorities).map((priority) => (
+          <Form.Dropdown.Item
+            key={priority.id}
+            value={priority.id.toString()}
+            title={priority.name}
+            icon={{ source: Icon.Circle, tintColor: priority.color }}
+          />
         ))}
       </Form.Dropdown>
       <Form.Dropdown id="due" title="Due Date" value={dueDateOption} onChange={setDueDateOption}>
