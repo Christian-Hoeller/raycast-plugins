@@ -11,7 +11,7 @@ import { TaskListItem } from "./components/TaskListItem";
 
 export default function Command() {
   // Custom hooks for data management
-  const { tasks, setTasks, categories, priorities, isLoading, isConfigured, loadData, checkConfiguration } =
+  const { tasks, setTasks, categories, priorities, codingProjects, isLoading, isConfigured, loadData, checkConfiguration } =
     useTasksData();
   const [sortMode, setSortMode] = useState<SortMode>("createdAt");
   const {
@@ -132,6 +132,7 @@ export default function Command() {
               categoryName={getCategoryName(task, categories)}
               categories={categories}
               priorities={priorities}
+              codingProjects={codingProjects}
               showingDetail={showingDetail}
               showArchived={showArchived}
               searchText={searchText}
