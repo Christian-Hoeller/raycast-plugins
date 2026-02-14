@@ -3,6 +3,7 @@ export type TaskCategory = {
   id: number;
   category: string;
   description?: string;
+  codingProjectId?: number | null;
 };
 
 export type Priority = {
