@@ -24,6 +24,23 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
   const [deleteTaskCategoriesEndpoint, setDeleteTaskCategoriesEndpoint] = useState<string>(
     defaults.DELETE_TASK_CATEGORIES_ENDPOINT,
   );
+  const [getAllPrioritiesEndpoint, setGetAllPrioritiesEndpoint] = useState<string>(
+    defaults.GET_ALL_PRIORITIES_ENDPOINT,
+  );
+  const [createPriorityEndpoint, setCreatePriorityEndpoint] = useState<string>(defaults.CREATE_PRIORITY_ENDPOINT);
+  const [deletePriorityEndpoint, setDeletePriorityEndpoint] = useState<string>(defaults.DELETE_PRIORITY_ENDPOINT);
+  const [getAllCodingProjectsEndpoint, setGetAllCodingProjectsEndpoint] = useState<string>(
+    defaults.GET_ALL_CODING_PROJECTS_ENDPOINT,
+  );
+  const [createCodingProjectEndpoint, setCreateCodingProjectEndpoint] = useState<string>(
+    defaults.CREATE_CODING_PROJECT_ENDPOINT,
+  );
+  const [updateCodingProjectEndpoint, setUpdateCodingProjectEndpoint] = useState<string>(
+    defaults.UPDATE_CODING_PROJECT_ENDPOINT,
+  );
+  const [deleteCodingProjectEndpoint, setDeleteCodingProjectEndpoint] = useState<string>(
+    defaults.DELETE_CODING_PROJECT_ENDPOINT,
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function handleSubmit() {
@@ -37,6 +54,13 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
       GET_TASK_CATEGORIES_ENDPOINT: getTaskCategoriesEndpoint.trim(),
       CREATE_TASK_CATEGORY_ENDPOINT: createTaskCategoryEndpoint.trim(),
       DELETE_TASK_CATEGORIES_ENDPOINT: deleteTaskCategoriesEndpoint.trim(),
+      GET_ALL_PRIORITIES_ENDPOINT: getAllPrioritiesEndpoint.trim(),
+      CREATE_PRIORITY_ENDPOINT: createPriorityEndpoint.trim(),
+      DELETE_PRIORITY_ENDPOINT: deletePriorityEndpoint.trim(),
+      GET_ALL_CODING_PROJECTS_ENDPOINT: getAllCodingProjectsEndpoint.trim(),
+      CREATE_CODING_PROJECT_ENDPOINT: createCodingProjectEndpoint.trim(),
+      UPDATE_CODING_PROJECT_ENDPOINT: updateCodingProjectEndpoint.trim(),
+      DELETE_CODING_PROJECT_ENDPOINT: deleteCodingProjectEndpoint.trim(),
     };
 
     await saveConfig(config);
@@ -112,6 +136,61 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         placeholder="https://n8n.some-instance.com/webhook"
         value={deleteTaskCategoriesEndpoint}
         onChange={setDeleteTaskCategoriesEndpoint}
+      />
+
+      <Form.Separator />
+
+      <Form.TextField
+        id="getAllPrioritiesEndpoint"
+        title="Get All Priorities"
+        placeholder="https://n8n.some-instance.com/webhook/priorities"
+        value={getAllPrioritiesEndpoint}
+        onChange={setGetAllPrioritiesEndpoint}
+      />
+      <Form.TextField
+        id="createPriorityEndpoint"
+        title="Create Priority"
+        placeholder="https://n8n.some-instance.com/webhook/priorities"
+        value={createPriorityEndpoint}
+        onChange={setCreatePriorityEndpoint}
+      />
+      <Form.TextField
+        id="deletePriorityEndpoint"
+        title="Delete Priority"
+        placeholder="https://n8n.some-instance.com/webhook/priorities"
+        value={deletePriorityEndpoint}
+        onChange={setDeletePriorityEndpoint}
+      />
+
+      <Form.Separator />
+
+      <Form.TextField
+        id="getAllCodingProjectsEndpoint"
+        title="Get All Coding Projects"
+        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
+        value={getAllCodingProjectsEndpoint}
+        onChange={setGetAllCodingProjectsEndpoint}
+      />
+      <Form.TextField
+        id="createCodingProjectEndpoint"
+        title="Create Coding Project"
+        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
+        value={createCodingProjectEndpoint}
+        onChange={setCreateCodingProjectEndpoint}
+      />
+      <Form.TextField
+        id="updateCodingProjectEndpoint"
+        title="Update Coding Project"
+        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
+        value={updateCodingProjectEndpoint}
+        onChange={setUpdateCodingProjectEndpoint}
+      />
+      <Form.TextField
+        id="deleteCodingProjectEndpoint"
+        title="Delete Coding Project"
+        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
+        value={deleteCodingProjectEndpoint}
+        onChange={setDeleteCodingProjectEndpoint}
       />
     </Form>
   );
