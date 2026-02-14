@@ -13,9 +13,16 @@ type TaskDetailProps = {
   description?: string;
 };
 
-export function TaskDetail({ task, categoryName, categories, priorities, codingProjects, description }: TaskDetailProps) {
+export function TaskDetail({
+  task,
+  categoryName,
+  categories,
+  priorities,
+  codingProjects,
+  description,
+}: TaskDetailProps) {
   const overdue = !task.done && isOverdue(task.due);
-  
+
   // Find the category to check for codingProjectId
   const category = categories.find((cat) => cat.id === task.categoryId);
   const codingProject = category?.codingProjectId
@@ -30,11 +37,7 @@ export function TaskDetail({ task, categoryName, categories, priorities, codingP
           <List.Item.Detail.Metadata.Label title="Id" text={`${task.id}`} />
           <List.Item.Detail.Metadata.Label title="Category" text={categoryName} />
           {codingProject && (
-            <List.Item.Detail.Metadata.Label 
-              title="GitHub Project" 
-              text={codingProject.name}
-              icon={Icon.Code}
-            />
+            <List.Item.Detail.Metadata.Label title="GitHub Project" text={codingProject.name} icon={Icon.Code} />
           )}
           <List.Item.Detail.Metadata.TagList title="Priority">
             <List.Item.Detail.Metadata.TagList.Item

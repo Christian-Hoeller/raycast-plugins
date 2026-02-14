@@ -73,7 +73,16 @@ export function TaskListItem({
             ]
           : undefined
       }
-      detail={<TaskDetail task={task} categoryName={categoryName} categories={categories} priorities={priorities} codingProjects={codingProjects} description={description} />}
+      detail={
+        <TaskDetail
+          task={task}
+          categoryName={categoryName}
+          categories={categories}
+          priorities={priorities}
+          codingProjects={codingProjects}
+          description={description}
+        />
+      }
       actions={
         <ActionPanel>
           <Action
