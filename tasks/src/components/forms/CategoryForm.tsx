@@ -1,5 +1,5 @@
-import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
-import { useState } from "react";
+import { ActionPanel, Action, Form, useNavigation, showToast, Toast } from "@raycast/api";
+import { useForm, FormValidation } from "@raycast/utils";
 import { createCategory } from "../../api/categories";
 import type { CreateCategoryPayload } from "../../types";
 
@@ -7,57 +7,51 @@ type CategoryFormProps = {
   onSuccess: () => void;
 };
 
+interface CategoryFormValues {
+  categoryName: string;
+  description: string;
+}
+
 export function CategoryForm({ onSuccess }: CategoryFormProps) {
   const { pop } = useNavigation();
-  const [categoryName, setCategoryName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  async function handleSubmit() {
-    if (!categoryName.trim()) {
-      return;
-    }
+  const { handleSubmit, itemProps } = useForm<CategoryFormValues>({
+    async onSubmit(values) {
+      const payload: CreateCategoryPayload = {
+        category: values.categoryName.trim(),
+        description: values.description.trim() || undefined,
+      };
 
-    setIsLoading(true);
+      const result = await createCategory(payload);
 
-    const payload: CreateCategoryPayload = {
-      category: categoryName.trim(),
-      description: description.trim() || undefined,
-    };
-
-    const result = await createCategory(payload);
-
-    setIsLoading(false);
-
-    if (result) {
-      onSuccess();
-      pop();
-    }
-  }
+      if (result) {
+        await showToast({
+          style: Toast.Style.Success,
+          title: "Category created",
+        });
+        onSuccess();
+        pop();
+      }
+    },
+    initialValues: {
+      categoryName: "",
+      description: "",
+    },
+    validation: {
+      categoryName: FormValidation.Required,
+    },
+  });
 
   return (
     <Form
-      isLoading={isLoading}
       actions={
         <ActionPanel>
           <Action.SubmitForm title="Create Category" onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
-      <Form.TextField
-        id="category"
-        title="Category Name"
-        placeholder="Enter category name"
-        value={categoryName}
-        onChange={setCategoryName}
-      />
-      <Form.TextField
-        id="description"
-        title="Description"
-        placeholder="Optional description"
-        value={description}
-        onChange={setDescription}
-      />
+      <Form.TextField title="Category Name" placeholder="Enter category name" {...itemProps.categoryName} />
+      <Form.TextField title="Description" placeholder="Optional description" {...itemProps.description} />
     </Form>
   );
 }
