@@ -1,6 +1,6 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
-import { useState } from "react";
-import { saveConfig, getDefaultConfig } from "../../utils/config";
+import { useState, useEffect } from "react";
+import { saveConfig, getConfig } from "../../utils/config";
 import type { Config } from "../../utils/config";
 
 type ConfigurationFormProps = {
@@ -9,43 +9,51 @@ type ConfigurationFormProps = {
 
 export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
   const { pop } = useNavigation();
-  const defaults = getDefaultConfig();
 
-  const [getAllTasksEndpoint, setGetAllTasksEndpoint] = useState<string>(defaults.GET_ALL_TASKS_ENDPOINT);
-  const [createTaskEndpoint, setCreateTaskEndpoint] = useState<string>(defaults.CREATE_TASK_ENDPOINT);
-  const [updateTaskEndpoint, setUpdateTaskEndpoint] = useState<string>(defaults.UPDATE_TASK_ENDPOINT);
-  const [deleteTaskEndpoint, setDeleteTaskEndpoint] = useState<string>(defaults.DELETE_TASK_ENDPOINT);
-  const [getTaskCategoriesEndpoint, setGetTaskCategoriesEndpoint] = useState<string>(
-    defaults.GET_TASK_CATEGORIES_ENDPOINT,
-  );
-  const [createTaskCategoryEndpoint, setCreateTaskCategoryEndpoint] = useState<string>(
-    defaults.CREATE_TASK_CATEGORY_ENDPOINT,
-  );
-  const [deleteTaskCategoriesEndpoint, setDeleteTaskCategoriesEndpoint] = useState<string>(
-    defaults.DELETE_TASK_CATEGORIES_ENDPOINT,
-  );
-  const [getAllPrioritiesEndpoint, setGetAllPrioritiesEndpoint] = useState<string>(
-    defaults.GET_ALL_PRIORITIES_ENDPOINT,
-  );
-  const [createPriorityEndpoint, setCreatePriorityEndpoint] = useState<string>(defaults.CREATE_PRIORITY_ENDPOINT);
-  const [deletePriorityEndpoint, setDeletePriorityEndpoint] = useState<string>(defaults.DELETE_PRIORITY_ENDPOINT);
-  const [getAllCodingProjectsEndpoint, setGetAllCodingProjectsEndpoint] = useState<string>(
-    defaults.GET_ALL_CODING_PROJECTS_ENDPOINT,
-  );
-  const [createCodingProjectEndpoint, setCreateCodingProjectEndpoint] = useState<string>(
-    defaults.CREATE_CODING_PROJECT_ENDPOINT,
-  );
-  const [updateCodingProjectEndpoint, setUpdateCodingProjectEndpoint] = useState<string>(
-    defaults.UPDATE_CODING_PROJECT_ENDPOINT,
-  );
-  const [deleteCodingProjectEndpoint, setDeleteCodingProjectEndpoint] = useState<string>(
-    defaults.DELETE_CODING_PROJECT_ENDPOINT,
-  );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [getAllTasksEndpoint, setGetAllTasksEndpoint] = useState<string>("");
+  const [createTaskEndpoint, setCreateTaskEndpoint] = useState<string>("");
+  const [updateTaskEndpoint, setUpdateTaskEndpoint] = useState<string>("");
+  const [deleteTaskEndpoint, setDeleteTaskEndpoint] = useState<string>("");
+  const [getTaskCategoriesEndpoint, setGetTaskCategoriesEndpoint] = useState<string>("");
+  const [createTaskCategoryEndpoint, setCreateTaskCategoryEndpoint] = useState<string>("");
+  const [deleteTaskCategoriesEndpoint, setDeleteTaskCategoriesEndpoint] = useState<string>("");
+  const [getAllPrioritiesEndpoint, setGetAllPrioritiesEndpoint] = useState<string>("");
+  const [createPriorityEndpoint, setCreatePriorityEndpoint] = useState<string>("");
+  const [deletePriorityEndpoint, setDeletePriorityEndpoint] = useState<string>("");
+  const [getAllCodingProjectsEndpoint, setGetAllCodingProjectsEndpoint] = useState<string>("");
+  const [createCodingProjectEndpoint, setCreateCodingProjectEndpoint] = useState<string>("");
+  const [updateCodingProjectEndpoint, setUpdateCodingProjectEndpoint] = useState<string>("");
+  const [deleteCodingProjectEndpoint, setDeleteCodingProjectEndpoint] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function loadConfig() {
+      const config = await getConfig();
+      if (config) {
+        setGetAllTasksEndpoint(config.GET_ALL_TASKS_ENDPOINT);
+        setCreateTaskEndpoint(config.CREATE_TASK_ENDPOINT);
+        setUpdateTaskEndpoint(config.UPDATE_TASK_ENDPOINT);
+        setDeleteTaskEndpoint(config.DELETE_TASK_ENDPOINT);
+        setGetTaskCategoriesEndpoint(config.GET_TASK_CATEGORIES_ENDPOINT);
+        setCreateTaskCategoryEndpoint(config.CREATE_TASK_CATEGORY_ENDPOINT);
+        setDeleteTaskCategoriesEndpoint(config.DELETE_TASK_CATEGORIES_ENDPOINT);
+        setGetAllPrioritiesEndpoint(config.GET_ALL_PRIORITIES_ENDPOINT);
+        setCreatePriorityEndpoint(config.CREATE_PRIORITY_ENDPOINT);
+        setDeletePriorityEndpoint(config.DELETE_PRIORITY_ENDPOINT);
+        setGetAllCodingProjectsEndpoint(config.GET_ALL_CODING_PROJECTS_ENDPOINT);
+        setCreateCodingProjectEndpoint(config.CREATE_CODING_PROJECT_ENDPOINT);
+        setUpdateCodingProjectEndpoint(config.UPDATE_CODING_PROJECT_ENDPOINT);
+        setDeleteCodingProjectEndpoint(config.DELETE_CODING_PROJECT_ENDPOINT);
+      }
+      setIsLoading(false);
+    }
+    loadConfig();
+  }, []);
 
   async function handleSubmit() {
     setIsLoading(true);
 
+    // Only save fields that have values
     const config: Config = {
       GET_ALL_TASKS_ENDPOINT: getAllTasksEndpoint.trim(),
       CREATE_TASK_ENDPOINT: createTaskEndpoint.trim(),
@@ -80,7 +88,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
     >
       <Form.Description
         title="API Configuration"
-        text="Configure your n8n webhook endpoints. Default values are pre-filled."
+        text="Configure your n8n webhook endpoints for tasks, categories, priorities, and coding projects."
       />
 
       <Form.Separator />
