@@ -2,17 +2,24 @@ import { List, Icon } from "@raycast/api";
 import { generateTaskMarkdown } from "../utils/taskHelpers";
 import { formatRelativeDate, isOverdue } from "../utils/formatters";
 import { getPriorityName, getPriorityColor } from "../utils/priorityHelpers";
-import type { Task, Priority } from "../types";
+import type { Task, Priority, TaskCategory, CodingProject } from "../types";
 
 type TaskDetailProps = {
   task: Task;
+  category: TaskCategory;
   categoryName: string;
   priorities: Priority[];
+  codingProjects: CodingProject[];
   description?: string;
 };
 
-export function TaskDetail({ task, categoryName, priorities, description }: TaskDetailProps) {
+export function TaskDetail({ task, category, categoryName, priorities, codingProjects, description }: TaskDetailProps) {
   const overdue = !task.done && isOverdue(task.due);
+  
+  // Find the coding project name if codingProjectId exists
+  const codingProject = category.codingProjectId
+    ? codingProjects.find((project) => project.id === category.codingProjectId)
+    : undefined;
 
   return (
     <List.Item.Detail
@@ -21,6 +28,9 @@ export function TaskDetail({ task, categoryName, priorities, description }: Task
         <List.Item.Detail.Metadata>
           <List.Item.Detail.Metadata.Label title="Id" text={`${task.id}`} />
           <List.Item.Detail.Metadata.Label title="Category" text={categoryName} />
+          {codingProject && (
+            <List.Item.Detail.Metadata.Label title="GitHub Project" text={codingProject.name} icon={Icon.CodeBlock} />
+          )}
           <List.Item.Detail.Metadata.TagList title="Priority">
             <List.Item.Detail.Metadata.TagList.Item
               text={getPriorityName(priorities, task.priorityId)}

@@ -7,13 +7,15 @@ import { CategoryForm } from "./forms/CategoryForm";
 import { ConfigurationForm } from "./forms/ConfigurationForm";
 import { TaskDescriptionForm } from "./forms/TaskDescriptionForm";
 import { TaskDetail } from "./TaskDetail";
-import type { Task, TaskCategory, Priority } from "../types";
+import type { Task, TaskCategory, Priority, CodingProject } from "../types";
 
 type TaskListItemProps = {
   task: Task;
+  category: TaskCategory;
   categoryName: string;
   categories: TaskCategory[];
   priorities: Priority[];
+  codingProjects: CodingProject[];
   showingDetail: boolean;
   showArchived: boolean;
   searchText: string;
@@ -30,9 +32,11 @@ type TaskListItemProps = {
 
 export function TaskListItem({
   task,
+  category,
   categoryName,
   categories,
   priorities,
+  codingProjects,
   showingDetail,
   showArchived,
   searchText,
@@ -71,7 +75,16 @@ export function TaskListItem({
             ]
           : undefined
       }
-      detail={<TaskDetail task={task} categoryName={categoryName} priorities={priorities} description={description} />}
+      detail={
+        <TaskDetail
+          task={task}
+          category={category}
+          categoryName={categoryName}
+          priorities={priorities}
+          codingProjects={codingProjects}
+          description={description}
+        />
+      }
       actions={
         <ActionPanel>
           <Action
