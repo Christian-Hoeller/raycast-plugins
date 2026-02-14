@@ -1,5 +1,5 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
-import { useState } from "react";
+import { useForm } from "@raycast/utils";
 import type { Task } from "../../types";
 
 type TaskDescriptionFormProps = {
@@ -8,33 +8,34 @@ type TaskDescriptionFormProps = {
   onSave: (description: string) => void;
 };
 
+interface DescriptionFormValues {
+  description: string;
+}
+
 export function TaskDescriptionForm({ task, description, onSave }: TaskDescriptionFormProps) {
-  const [localDescription, setLocalDescription] = useState<string>(description || "");
   const { pop } = useNavigation();
+
+  const { handleSubmit, itemProps } = useForm<DescriptionFormValues>({
+    onSubmit(values) {
+      onSave(values.description);
+      pop();
+    },
+    initialValues: {
+      description: description || "",
+    },
+  });
 
   return (
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            title="Save Description"
-            onSubmit={(values: { description: string }) => {
-              onSave(values.description);
-              pop();
-            }}
-          />
+          <Action.SubmitForm title="Save Description" onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
       <Form.Description title="Task" text={task.task} />
       <Form.Separator />
-      <Form.TextArea
-        id="description"
-        title="Description"
-        placeholder="Enter task description..."
-        value={localDescription}
-        onChange={setLocalDescription}
-      />
+      <Form.TextArea title="Description" placeholder="Enter task description..." {...itemProps.description} />
     </Form>
   );
 }
