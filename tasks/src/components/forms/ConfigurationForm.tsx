@@ -20,10 +20,6 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
   const [getAllPrioritiesEndpoint, setGetAllPrioritiesEndpoint] = useState<string>("");
   const [createPriorityEndpoint, setCreatePriorityEndpoint] = useState<string>("");
   const [deletePriorityEndpoint, setDeletePriorityEndpoint] = useState<string>("");
-  const [getAllCodingProjectsEndpoint, setGetAllCodingProjectsEndpoint] = useState<string>("");
-  const [createCodingProjectEndpoint, setCreateCodingProjectEndpoint] = useState<string>("");
-  const [updateCodingProjectEndpoint, setUpdateCodingProjectEndpoint] = useState<string>("");
-  const [deleteCodingProjectEndpoint, setDeleteCodingProjectEndpoint] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -40,10 +36,6 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         setGetAllPrioritiesEndpoint(config.GET_ALL_PRIORITIES_ENDPOINT);
         setCreatePriorityEndpoint(config.CREATE_PRIORITY_ENDPOINT);
         setDeletePriorityEndpoint(config.DELETE_PRIORITY_ENDPOINT);
-        setGetAllCodingProjectsEndpoint(config.GET_ALL_CODING_PROJECTS_ENDPOINT);
-        setCreateCodingProjectEndpoint(config.CREATE_CODING_PROJECT_ENDPOINT);
-        setUpdateCodingProjectEndpoint(config.UPDATE_CODING_PROJECT_ENDPOINT);
-        setDeleteCodingProjectEndpoint(config.DELETE_CODING_PROJECT_ENDPOINT);
       }
       setIsLoading(false);
     }
@@ -65,10 +57,6 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
       GET_ALL_PRIORITIES_ENDPOINT: getAllPrioritiesEndpoint.trim(),
       CREATE_PRIORITY_ENDPOINT: createPriorityEndpoint.trim(),
       DELETE_PRIORITY_ENDPOINT: deletePriorityEndpoint.trim(),
-      GET_ALL_CODING_PROJECTS_ENDPOINT: getAllCodingProjectsEndpoint.trim(),
-      CREATE_CODING_PROJECT_ENDPOINT: createCodingProjectEndpoint.trim(),
-      UPDATE_CODING_PROJECT_ENDPOINT: updateCodingProjectEndpoint.trim(),
-      DELETE_CODING_PROJECT_ENDPOINT: deleteCodingProjectEndpoint.trim(),
     };
 
     await saveConfig(config);
@@ -88,7 +76,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
     >
       <Form.Description
         title="API Configuration"
-        text="Configure your n8n webhook endpoints for tasks, categories, priorities, and coding projects."
+        text="Configure your n8n webhook endpoints for tasks, categories, and priorities."
       />
 
       <Form.Separator />
@@ -168,37 +156,6 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         placeholder="https://n8n.some-instance.com/webhook/priorities"
         value={deletePriorityEndpoint}
         onChange={setDeletePriorityEndpoint}
-      />
-
-      <Form.Separator />
-
-      <Form.TextField
-        id="getAllCodingProjectsEndpoint"
-        title="Get All Coding Projects"
-        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
-        value={getAllCodingProjectsEndpoint}
-        onChange={setGetAllCodingProjectsEndpoint}
-      />
-      <Form.TextField
-        id="createCodingProjectEndpoint"
-        title="Create Coding Project"
-        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
-        value={createCodingProjectEndpoint}
-        onChange={setCreateCodingProjectEndpoint}
-      />
-      <Form.TextField
-        id="updateCodingProjectEndpoint"
-        title="Update Coding Project"
-        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
-        value={updateCodingProjectEndpoint}
-        onChange={setUpdateCodingProjectEndpoint}
-      />
-      <Form.TextField
-        id="deleteCodingProjectEndpoint"
-        title="Delete Coding Project"
-        placeholder="https://n8n.some-instance.com/webhook/codingProjects"
-        value={deleteCodingProjectEndpoint}
-        onChange={setDeleteCodingProjectEndpoint}
       />
     </Form>
   );

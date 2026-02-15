@@ -3,7 +3,10 @@ export type TaskCategory = {
   id: number;
   category: string;
   description?: string;
-  codingProjectId?: number | null;
+  repositoryUrl?: string;
+  branchName?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Priority = {
@@ -48,32 +51,12 @@ export type UpdateTaskPayload = {
 export type CreateCategoryPayload = {
   category: string;
   description?: string;
+  repositoryUrl?: string;
+  branchName?: string;
 };
 
 export type CreatePriorityPayload = {
   name: string;
   color: string;
   level: number;
-};
-
-// Coding Projects
-export type CodingProject = {
-  id: number;
-  name: string;
-  repositoryUrl: string;
-  branchName: string;
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
-};
-
-export type CreateCodingProjectPayload = {
-  name: string;
-  repositoryUrl: string;
-  branchName: string;
-};
-
-export type UpdateCodingProjectPayload = {
-  name?: string;
-  repositoryUrl?: string;
-  branchName?: string;
 };

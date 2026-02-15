@@ -11,6 +11,8 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
   const { pop } = useNavigation();
   const [categoryName, setCategoryName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [repositoryUrl, setRepositoryUrl] = useState<string>("");
+  const [branchName, setBranchName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function handleSubmit() {
@@ -23,6 +25,8 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
     const payload: CreateCategoryPayload = {
       category: categoryName.trim(),
       description: description.trim() || undefined,
+      repositoryUrl: repositoryUrl.trim() || undefined,
+      branchName: branchName.trim() || undefined,
     };
 
     const result = await createCategory(payload);
@@ -57,6 +61,20 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
         placeholder="Optional description"
         value={description}
         onChange={setDescription}
+      />
+      <Form.TextField
+        id="repositoryUrl"
+        title="Repository URL"
+        placeholder="https://github.com/username/repo (optional)"
+        value={repositoryUrl}
+        onChange={setRepositoryUrl}
+      />
+      <Form.TextField
+        id="branchName"
+        title="Branch Name"
+        placeholder="main, dev, etc. (optional)"
+        value={branchName}
+        onChange={setBranchName}
       />
     </Form>
   );

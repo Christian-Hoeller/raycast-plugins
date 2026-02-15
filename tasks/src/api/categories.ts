@@ -77,6 +77,49 @@ export async function createCategory(payload: CreateCategoryPayload): Promise<Ta
 }
 
 /**
+ * Update an existing task category
+ */
+export async function updateCategory(
+  id: number,
+  payload: Partial<CreateCategoryPayload>,
+): Promise<TaskCategory | null> {
+  try {
+    const config = await getConfig();
+    if (!config) {
+      throw new Error("Configuration not found");
+    }
+
+    const response = await fetch(`${config.CREATE_TASK_CATEGORY_ENDPOINT}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = (await response.json()) as TaskCategory;
+
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Category updated",
+    });
+
+    return data;
+  } catch (error) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "Failed to update category",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+    return null;
+  }
+}
+
+/**
  * Delete a task category
  */
 export async function deleteCategory(id: number): Promise<boolean> {

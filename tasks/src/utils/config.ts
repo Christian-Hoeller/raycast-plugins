@@ -11,10 +11,6 @@ export type Config = {
   GET_ALL_PRIORITIES_ENDPOINT: string;
   CREATE_PRIORITY_ENDPOINT: string;
   DELETE_PRIORITY_ENDPOINT: string;
-  GET_ALL_CODING_PROJECTS_ENDPOINT: string;
-  CREATE_CODING_PROJECT_ENDPOINT: string;
-  UPDATE_CODING_PROJECT_ENDPOINT: string;
-  DELETE_CODING_PROJECT_ENDPOINT: string;
 };
 
 const CONFIG_KEY = "endpoint_config";
@@ -73,9 +69,5 @@ export function getDefaultConfig(): Config {
     GET_ALL_PRIORITIES_ENDPOINT: "https://n8n.some-instance.com/webhook/priorities",
     CREATE_PRIORITY_ENDPOINT: "https://n8n.some-instance.com/webhook/priorities",
     DELETE_PRIORITY_ENDPOINT: "https://n8n.some-instance.com/webhook/priorities",
-    GET_ALL_CODING_PROJECTS_ENDPOINT: "https://n8n.some-instance.com/webhook/codingProjects",
-    CREATE_CODING_PROJECT_ENDPOINT: "https://n8n.some-instance.com/webhook/codingProjects",
-    UPDATE_CODING_PROJECT_ENDPOINT: "https://n8n.some-instance.com/webhook/codingProjects",
-    DELETE_CODING_PROJECT_ENDPOINT: "https://n8n.some-instance.com/webhook/codingProjects",
   };
 }
