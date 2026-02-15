@@ -35,11 +35,7 @@ export function TaskDescriptionForm({ task, description, onSave }: TaskDescripti
     >
       <Form.Description title="Task" text={task.task} />
       <Form.Separator />
-      <Form.TextArea
-        title="Description"
-        placeholder="Enter task description..."
-        {...itemProps.description}
-      />
+      <Form.TextArea title="Description" placeholder="Enter task description..." {...itemProps.description} />
     </Form>
   );
 }

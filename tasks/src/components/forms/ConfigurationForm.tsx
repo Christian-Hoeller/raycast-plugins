@@ -1,10 +1,10 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
-import { useState, useEffect } from "react";
 import { useForm } from "@raycast/utils";
-import { saveConfig, getConfig } from "../../utils/config";
+import { saveConfig } from "../../utils/config";
 import type { Config } from "../../utils/config";
 
 type ConfigurationFormProps = {
+  config?: Config | null;
   onSuccess: () => void;
 };
 
@@ -44,57 +44,13 @@ function validateUrl(value: string | undefined): string | undefined {
   return undefined;
 }
 
-export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
+export function ConfigurationForm({ config, onSuccess }: ConfigurationFormProps) {
   const { pop } = useNavigation();
-  const [initialValues, setInitialValues] = useState<ConfigFormValues | undefined>(undefined);
-  const [isLoadingConfig, setIsLoadingConfig] = useState<boolean>(true);
-
-  // Load config on mount
-  useEffect(() => {
-    async function loadConfig() {
-      const config = await getConfig();
-
-      console.log(config);
-
-      if (config) {
-        setInitialValues({
-          getAllTasksEndpoint: config.GET_ALL_TASKS_ENDPOINT,
-          createTaskEndpoint: config.CREATE_TASK_ENDPOINT,
-          updateTaskEndpoint: config.UPDATE_TASK_ENDPOINT,
-          deleteTaskEndpoint: config.DELETE_TASK_ENDPOINT,
-          getTaskCategoriesEndpoint: config.GET_TASK_CATEGORIES_ENDPOINT,
-          createTaskCategoryEndpoint: config.CREATE_TASK_CATEGORY_ENDPOINT,
-          deleteTaskCategoriesEndpoint: config.DELETE_TASK_CATEGORIES_ENDPOINT,
-          getAllPrioritiesEndpoint: config.GET_ALL_PRIORITIES_ENDPOINT,
-          createPriorityEndpoint: config.CREATE_PRIORITY_ENDPOINT,
-          deletePriorityEndpoint: config.DELETE_PRIORITY_ENDPOINT,
-          codingAgentEndpoint: config.CODING_AGENT_ENDPOINT,
-        });
-      } else {
-        // Set empty values if no config exists
-        setInitialValues({
-          getAllTasksEndpoint: "",
-          createTaskEndpoint: "",
-          updateTaskEndpoint: "",
-          deleteTaskEndpoint: "",
-          getTaskCategoriesEndpoint: "",
-          createTaskCategoryEndpoint: "",
-          deleteTaskCategoriesEndpoint: "",
-          getAllPrioritiesEndpoint: "",
-          createPriorityEndpoint: "",
-          deletePriorityEndpoint: "",
-          codingAgentEndpoint: "",
-        });
-      }
-      setIsLoadingConfig(false);
-    }
-    loadConfig();
-  }, []);
 
   const { handleSubmit, itemProps } = useForm<ConfigFormValues>({
     async onSubmit(values) {
       // Save config with trimmed values
-      const config: Config = {
+      const configToSave: Config = {
         GET_ALL_TASKS_ENDPOINT: values.getAllTasksEndpoint.trim(),
         CREATE_TASK_ENDPOINT: values.createTaskEndpoint.trim(),
         UPDATE_TASK_ENDPOINT: values.updateTaskEndpoint.trim(),
@@ -108,12 +64,24 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         CODING_AGENT_ENDPOINT: values.codingAgentEndpoint.trim(),
       };
 
-      await saveConfig(config);
+      await saveConfig(configToSave);
 
       onSuccess();
       pop();
     },
-    initialValues,
+    initialValues: {
+      getAllTasksEndpoint: config?.GET_ALL_TASKS_ENDPOINT || "",
+      createTaskEndpoint: config?.CREATE_TASK_ENDPOINT || "",
+      updateTaskEndpoint: config?.UPDATE_TASK_ENDPOINT || "",
+      deleteTaskEndpoint: config?.DELETE_TASK_ENDPOINT || "",
+      getTaskCategoriesEndpoint: config?.GET_TASK_CATEGORIES_ENDPOINT || "",
+      createTaskCategoryEndpoint: config?.CREATE_TASK_CATEGORY_ENDPOINT || "",
+      deleteTaskCategoriesEndpoint: config?.DELETE_TASK_CATEGORIES_ENDPOINT || "",
+      getAllPrioritiesEndpoint: config?.GET_ALL_PRIORITIES_ENDPOINT || "",
+      createPriorityEndpoint: config?.CREATE_PRIORITY_ENDPOINT || "",
+      deletePriorityEndpoint: config?.DELETE_PRIORITY_ENDPOINT || "",
+      codingAgentEndpoint: config?.CODING_AGENT_ENDPOINT || "",
+    },
     validation: {
       getAllTasksEndpoint: validateUrl,
       createTaskEndpoint: validateUrl,
@@ -128,11 +96,6 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
       codingAgentEndpoint: validateUrl,
     },
   });
-
-  // Show loading state while config is being loaded
-  if (isLoadingConfig || !initialValues) {
-    return <Form isLoading={true} />;
-  }
 
   return (
     <Form

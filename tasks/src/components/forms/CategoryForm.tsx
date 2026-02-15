@@ -46,26 +46,14 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
         </ActionPanel>
       }
     >
-      <Form.TextField
-        title="Category Name"
-        placeholder="Enter category name"
-        {...itemProps.category}
-      />
-      <Form.TextField
-        title="Description"
-        placeholder="Optional description"
-        {...itemProps.description}
-      />
+      <Form.TextField title="Category Name" placeholder="Enter category name" {...itemProps.category} />
+      <Form.TextField title="Description" placeholder="Optional description" {...itemProps.description} />
       <Form.TextField
         title="Repository URL"
         placeholder="https://github.com/username/repo (optional)"
         {...itemProps.repositoryUrl}
       />
-      <Form.TextField
-        title="Branch Name"
-        placeholder="main, dev, etc. (optional)"
-        {...itemProps.branchName}
-      />
+      <Form.TextField title="Branch Name" placeholder="main, dev, etc. (optional)" {...itemProps.branchName} />
     </Form>
   );
 }

@@ -123,11 +123,7 @@ export function TaskForm({ categories, priorities, task, initialTaskName, onSucc
       }
     >
       <Form.TextField title="Task" placeholder="Enter task name" {...itemProps.task} />
-      <Form.TextArea
-        title="Description"
-        placeholder="Optional task description"
-        {...itemProps.description}
-      />
+      <Form.TextArea title="Description" placeholder="Optional task description" {...itemProps.description} />
       <Form.Dropdown title="Category" {...itemProps.categoryId}>
         <Form.Dropdown.Item value="" title="Select a category" />
         {categories.map((cat) => (

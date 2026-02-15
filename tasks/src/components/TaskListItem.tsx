@@ -4,7 +4,7 @@ import { getCategoryColor, hasValidRepository } from "../utils/categoryHelpers";
 import { getPriorityName, getPriorityColor } from "../utils/priorityHelpers";
 import { TaskForm } from "./forms/TaskForm";
 import { CategoryForm } from "./forms/CategoryForm";
-import { ConfigurationForm } from "./forms/ConfigurationForm";
+import { ConfigurationFormWrapper } from "./ConfigurationFormWrapper";
 import { TaskDescriptionForm } from "./forms/TaskDescriptionForm";
 import { TaskDetail } from "./TaskDetail";
 import type { Task, TaskCategory, Priority } from "../types";
@@ -190,7 +190,7 @@ export function TaskListItem({
             <Action.Push
               title="Settings"
               icon={Icon.Gear}
-              target={<ConfigurationForm onSuccess={onCheckConfiguration} />}
+              target={<ConfigurationFormWrapper onSuccess={onCheckConfiguration} />}
               shortcut={{ modifiers: ["cmd"], key: "," }}
             />
           </ActionPanel.Section>

@@ -6,7 +6,7 @@ import { useTaskActions } from "./hooks/useTaskActions";
 import { getCategoryName } from "./utils/categoryHelpers";
 import { getTaskCountByCategory, type SortMode } from "./utils/taskHelpers";
 import { TaskForm } from "./components/forms/TaskForm";
-import { ConfigurationForm } from "./components/forms/ConfigurationForm";
+import { ConfigurationFormWrapper } from "./components/ConfigurationFormWrapper";
 import { TaskListItem } from "./components/TaskListItem";
 
 export default function Command() {
@@ -47,7 +47,7 @@ export default function Command() {
               <Action.Push
                 title="Configure Endpoints"
                 icon={Icon.Gear}
-                target={<ConfigurationForm onSuccess={checkConfiguration} />}
+                target={<ConfigurationFormWrapper onSuccess={checkConfiguration} />}
               />
             </ActionPanel>
           }
@@ -120,7 +120,7 @@ export default function Command() {
               <Action.Push
                 title="Settings"
                 icon={Icon.Gear}
-                target={<ConfigurationForm onSuccess={checkConfiguration} />}
+                target={<ConfigurationFormWrapper onSuccess={checkConfiguration} />}
                 shortcut={{ modifiers: ["cmd"], key: "," }}
               />
             </ActionPanel>
