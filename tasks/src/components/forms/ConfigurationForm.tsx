@@ -1,5 +1,6 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useState, useEffect } from "react";
+import { useForm } from "@raycast/utils";
 import { saveConfig, getConfig } from "../../utils/config";
 import type { Config } from "../../utils/config";
 
@@ -7,67 +8,125 @@ type ConfigurationFormProps = {
   onSuccess: () => void;
 };
 
+interface ConfigFormValues {
+  getAllTasksEndpoint: string;
+  createTaskEndpoint: string;
+  updateTaskEndpoint: string;
+  deleteTaskEndpoint: string;
+  getTaskCategoriesEndpoint: string;
+  createTaskCategoryEndpoint: string;
+  deleteTaskCategoriesEndpoint: string;
+  getAllPrioritiesEndpoint: string;
+  createPriorityEndpoint: string;
+  deletePriorityEndpoint: string;
+}
+
+// URL validation function
+function validateUrl(value: string | undefined): string | undefined {
+  if (!value || value.trim() === "") {
+    return "URL is required";
+  }
+
+  const trimmedValue = value.trim();
+
+  // Check if it's a valid URL format
+  try {
+    const url = new URL(trimmedValue);
+    // Ensure it's HTTPS
+    if (url.protocol !== "https:") {
+      return "URL must use HTTPS protocol";
+    }
+  } catch {
+    return "Please enter a valid URL (e.g., https://n8n.example.com/webhook)";
+  }
+
+  return undefined;
+}
+
 export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
   const { pop } = useNavigation();
+  const [initialValues, setInitialValues] = useState<ConfigFormValues | undefined>(undefined);
+  const [isLoadingConfig, setIsLoadingConfig] = useState<boolean>(true);
 
-  const [getAllTasksEndpoint, setGetAllTasksEndpoint] = useState<string>("");
-  const [createTaskEndpoint, setCreateTaskEndpoint] = useState<string>("");
-  const [updateTaskEndpoint, setUpdateTaskEndpoint] = useState<string>("");
-  const [deleteTaskEndpoint, setDeleteTaskEndpoint] = useState<string>("");
-  const [getTaskCategoriesEndpoint, setGetTaskCategoriesEndpoint] = useState<string>("");
-  const [createTaskCategoryEndpoint, setCreateTaskCategoryEndpoint] = useState<string>("");
-  const [deleteTaskCategoriesEndpoint, setDeleteTaskCategoriesEndpoint] = useState<string>("");
-  const [getAllPrioritiesEndpoint, setGetAllPrioritiesEndpoint] = useState<string>("");
-  const [createPriorityEndpoint, setCreatePriorityEndpoint] = useState<string>("");
-  const [deletePriorityEndpoint, setDeletePriorityEndpoint] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  // Load config on mount
   useEffect(() => {
     async function loadConfig() {
       const config = await getConfig();
       if (config) {
-        setGetAllTasksEndpoint(config.GET_ALL_TASKS_ENDPOINT);
-        setCreateTaskEndpoint(config.CREATE_TASK_ENDPOINT);
-        setUpdateTaskEndpoint(config.UPDATE_TASK_ENDPOINT);
-        setDeleteTaskEndpoint(config.DELETE_TASK_ENDPOINT);
-        setGetTaskCategoriesEndpoint(config.GET_TASK_CATEGORIES_ENDPOINT);
-        setCreateTaskCategoryEndpoint(config.CREATE_TASK_CATEGORY_ENDPOINT);
-        setDeleteTaskCategoriesEndpoint(config.DELETE_TASK_CATEGORIES_ENDPOINT);
-        setGetAllPrioritiesEndpoint(config.GET_ALL_PRIORITIES_ENDPOINT);
-        setCreatePriorityEndpoint(config.CREATE_PRIORITY_ENDPOINT);
-        setDeletePriorityEndpoint(config.DELETE_PRIORITY_ENDPOINT);
+        setInitialValues({
+          getAllTasksEndpoint: config.GET_ALL_TASKS_ENDPOINT,
+          createTaskEndpoint: config.CREATE_TASK_ENDPOINT,
+          updateTaskEndpoint: config.UPDATE_TASK_ENDPOINT,
+          deleteTaskEndpoint: config.DELETE_TASK_ENDPOINT,
+          getTaskCategoriesEndpoint: config.GET_TASK_CATEGORIES_ENDPOINT,
+          createTaskCategoryEndpoint: config.CREATE_TASK_CATEGORY_ENDPOINT,
+          deleteTaskCategoriesEndpoint: config.DELETE_TASK_CATEGORIES_ENDPOINT,
+          getAllPrioritiesEndpoint: config.GET_ALL_PRIORITIES_ENDPOINT,
+          createPriorityEndpoint: config.CREATE_PRIORITY_ENDPOINT,
+          deletePriorityEndpoint: config.DELETE_PRIORITY_ENDPOINT,
+        });
+      } else {
+        // Set empty values if no config exists
+        setInitialValues({
+          getAllTasksEndpoint: "",
+          createTaskEndpoint: "",
+          updateTaskEndpoint: "",
+          deleteTaskEndpoint: "",
+          getTaskCategoriesEndpoint: "",
+          createTaskCategoryEndpoint: "",
+          deleteTaskCategoriesEndpoint: "",
+          getAllPrioritiesEndpoint: "",
+          createPriorityEndpoint: "",
+          deletePriorityEndpoint: "",
+        });
       }
-      setIsLoading(false);
+      setIsLoadingConfig(false);
     }
     loadConfig();
   }, []);
 
-  async function handleSubmit() {
-    setIsLoading(true);
+  const { handleSubmit, itemProps } = useForm<ConfigFormValues>({
+    async onSubmit(values) {
+      // Save config with trimmed values
+      const config: Config = {
+        GET_ALL_TASKS_ENDPOINT: values.getAllTasksEndpoint.trim(),
+        CREATE_TASK_ENDPOINT: values.createTaskEndpoint.trim(),
+        UPDATE_TASK_ENDPOINT: values.updateTaskEndpoint.trim(),
+        DELETE_TASK_ENDPOINT: values.deleteTaskEndpoint.trim(),
+        GET_TASK_CATEGORIES_ENDPOINT: values.getTaskCategoriesEndpoint.trim(),
+        CREATE_TASK_CATEGORY_ENDPOINT: values.createTaskCategoryEndpoint.trim(),
+        DELETE_TASK_CATEGORIES_ENDPOINT: values.deleteTaskCategoriesEndpoint.trim(),
+        GET_ALL_PRIORITIES_ENDPOINT: values.getAllPrioritiesEndpoint.trim(),
+        CREATE_PRIORITY_ENDPOINT: values.createPriorityEndpoint.trim(),
+        DELETE_PRIORITY_ENDPOINT: values.deletePriorityEndpoint.trim(),
+      };
 
-    // Only save fields that have values
-    const config: Config = {
-      GET_ALL_TASKS_ENDPOINT: getAllTasksEndpoint.trim(),
-      CREATE_TASK_ENDPOINT: createTaskEndpoint.trim(),
-      UPDATE_TASK_ENDPOINT: updateTaskEndpoint.trim(),
-      DELETE_TASK_ENDPOINT: deleteTaskEndpoint.trim(),
-      GET_TASK_CATEGORIES_ENDPOINT: getTaskCategoriesEndpoint.trim(),
-      CREATE_TASK_CATEGORY_ENDPOINT: createTaskCategoryEndpoint.trim(),
-      DELETE_TASK_CATEGORIES_ENDPOINT: deleteTaskCategoriesEndpoint.trim(),
-      GET_ALL_PRIORITIES_ENDPOINT: getAllPrioritiesEndpoint.trim(),
-      CREATE_PRIORITY_ENDPOINT: createPriorityEndpoint.trim(),
-      DELETE_PRIORITY_ENDPOINT: deletePriorityEndpoint.trim(),
-    };
+      await saveConfig(config);
+      onSuccess();
+      pop();
+    },
+    initialValues,
+    validation: {
+      getAllTasksEndpoint: validateUrl,
+      createTaskEndpoint: validateUrl,
+      updateTaskEndpoint: validateUrl,
+      deleteTaskEndpoint: validateUrl,
+      getTaskCategoriesEndpoint: validateUrl,
+      createTaskCategoryEndpoint: validateUrl,
+      deleteTaskCategoriesEndpoint: validateUrl,
+      getAllPrioritiesEndpoint: validateUrl,
+      createPriorityEndpoint: validateUrl,
+      deletePriorityEndpoint: validateUrl,
+    },
+  });
 
-    await saveConfig(config);
-    setIsLoading(false);
-    onSuccess();
-    pop();
+  // Show loading state while config is being loaded
+  if (isLoadingConfig || !initialValues) {
+    return <Form isLoading={true} />;
   }
 
   return (
     <Form
-      isLoading={isLoading}
       actions={
         <ActionPanel>
           <Action.SubmitForm title="Save Configuration" onSubmit={handleSubmit} />
@@ -85,29 +144,25 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         id="getAllTasksEndpoint"
         title="Get All Tasks"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={getAllTasksEndpoint}
-        onChange={setGetAllTasksEndpoint}
+        {...itemProps.getAllTasksEndpoint}
       />
       <Form.TextField
         id="createTaskEndpoint"
         title="Create Task"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={createTaskEndpoint}
-        onChange={setCreateTaskEndpoint}
+        {...itemProps.createTaskEndpoint}
       />
       <Form.TextField
         id="updateTaskEndpoint"
         title="Update Task"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={updateTaskEndpoint}
-        onChange={setUpdateTaskEndpoint}
+        {...itemProps.updateTaskEndpoint}
       />
       <Form.TextField
         id="deleteTaskEndpoint"
         title="Delete Task"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={deleteTaskEndpoint}
-        onChange={setDeleteTaskEndpoint}
+        {...itemProps.deleteTaskEndpoint}
       />
 
       <Form.Separator />
@@ -116,22 +171,19 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         id="getTaskCategoriesEndpoint"
         title="Get Categories"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={getTaskCategoriesEndpoint}
-        onChange={setGetTaskCategoriesEndpoint}
+        {...itemProps.getTaskCategoriesEndpoint}
       />
       <Form.TextField
         id="createTaskCategoryEndpoint"
         title="Create Category"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={createTaskCategoryEndpoint}
-        onChange={setCreateTaskCategoryEndpoint}
+        {...itemProps.createTaskCategoryEndpoint}
       />
       <Form.TextField
         id="deleteTaskCategoriesEndpoint"
         title="Delete Category"
         placeholder="https://n8n.some-instance.com/webhook"
-        value={deleteTaskCategoriesEndpoint}
-        onChange={setDeleteTaskCategoriesEndpoint}
+        {...itemProps.deleteTaskCategoriesEndpoint}
       />
 
       <Form.Separator />
@@ -140,22 +192,19 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         id="getAllPrioritiesEndpoint"
         title="Get All Priorities"
         placeholder="https://n8n.some-instance.com/webhook/priorities"
-        value={getAllPrioritiesEndpoint}
-        onChange={setGetAllPrioritiesEndpoint}
+        {...itemProps.getAllPrioritiesEndpoint}
       />
       <Form.TextField
         id="createPriorityEndpoint"
         title="Create Priority"
         placeholder="https://n8n.some-instance.com/webhook/priorities"
-        value={createPriorityEndpoint}
-        onChange={setCreatePriorityEndpoint}
+        {...itemProps.createPriorityEndpoint}
       />
       <Form.TextField
         id="deletePriorityEndpoint"
         title="Delete Priority"
         placeholder="https://n8n.some-instance.com/webhook/priorities"
-        value={deletePriorityEndpoint}
-        onChange={setDeletePriorityEndpoint}
+        {...itemProps.deletePriorityEndpoint}
       />
     </Form>
   );
