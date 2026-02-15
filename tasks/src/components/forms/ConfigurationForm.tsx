@@ -53,6 +53,9 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
   useEffect(() => {
     async function loadConfig() {
       const config = await getConfig();
+
+      console.log(config);
+
       if (config) {
         setInitialValues({
           getAllTasksEndpoint: config.GET_ALL_TASKS_ENDPOINT,
@@ -106,6 +109,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
       };
 
       await saveConfig(config);
+
       onSuccess();
       pop();
     },

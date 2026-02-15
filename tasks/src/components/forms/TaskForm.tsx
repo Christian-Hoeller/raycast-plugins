@@ -1,5 +1,5 @@
 import { ActionPanel, Action, Form, useNavigation, Icon } from "@raycast/api";
-import { useState } from "react";
+import { useForm, FormValidation } from "@raycast/utils";
 import { addDays, startOfDay } from "date-fns";
 import { createTask, updateTask } from "../../api/tasks";
 import { formatDateForAPI } from "../../utils/formatters";
@@ -13,6 +13,14 @@ type TaskFormProps = {
   initialTaskName?: string;
   onSuccess: () => void;
 };
+
+interface TaskFormValues {
+  task: string;
+  description: string;
+  categoryId: string;
+  priorityId: string;
+  dueDateOption: string;
+}
 
 export function TaskForm({ categories, priorities, task, initialTaskName, onSuccess }: TaskFormProps) {
   const { pop } = useNavigation();
@@ -34,19 +42,8 @@ export function TaskForm({ categories, priorities, task, initialTaskName, onSucc
     return "tomorrow"; // Default if date doesn't match options
   }
 
-  const [taskName, setTaskName] = useState<string>(task?.task || initialTaskName || "");
-  const [categoryId, setCategoryId] = useState<string>(
-    task?.categoryId !== undefined ? task.categoryId.toString() : "",
-  );
-  const [priorityId, setPriorityId] = useState<string>(
-    task?.priorityId !== undefined ? task.priorityId.toString() : defaultPriority.id.toString(),
-  );
-  const [dueDateOption, setDueDateOption] = useState<string>(getInitialDueDateOption());
-  const [description, setDescription] = useState<string>(task?.description || "");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
   // Helper function to convert dropdown option to Date
-  function getDueDate(): Date {
+  function getDueDate(dueDateOption: string): Date {
     const today = startOfDay(new Date());
     switch (dueDateOption) {
       case "today":
@@ -60,75 +57,84 @@ export function TaskForm({ categories, priorities, task, initialTaskName, onSucc
     }
   }
 
-  async function handleSubmit() {
-    if (!taskName.trim() || !categoryId || !priorityId || !dueDateOption) {
-      return;
-    }
+  const { handleSubmit, itemProps } = useForm<TaskFormValues>({
+    async onSubmit(values) {
+      const dueDate = getDueDate(values.dueDateOption);
 
-    setIsLoading(true);
-    const dueDate = getDueDate();
+      if (isEditing && task) {
+        // Update existing task
+        const payload: UpdateTaskPayload = {
+          task: values.task.trim(),
+          categoryId: parseInt(values.categoryId, 10),
+          priorityId: parseInt(values.priorityId, 10),
+          due: formatDateForAPI(dueDate),
+          ...(values.description.trim() && { description: values.description.trim() }),
+        };
 
-    if (isEditing && task) {
-      // Update existing task
-      const payload: UpdateTaskPayload = {
-        task: taskName.trim(),
-        categoryId: parseInt(categoryId, 10),
-        priorityId: parseInt(priorityId, 10),
-        due: formatDateForAPI(dueDate),
-        ...(description.trim() && { description: description.trim() }),
-      };
+        const result = await updateTask(task.id, payload);
 
-      const result = await updateTask(task.id, payload);
-      setIsLoading(false);
+        if (result) {
+          onSuccess();
+          pop();
+        }
+      } else {
+        // Create new task
+        const payload: CreateTaskPayload = {
+          task: values.task.trim(),
+          categoryId: parseInt(values.categoryId, 10),
+          priorityId: parseInt(values.priorityId, 10),
+          due: formatDateForAPI(dueDate),
+          ...(values.description.trim() && { description: values.description.trim() }),
+        };
 
-      if (result) {
-        onSuccess();
-        pop();
+        const result = await createTask(payload);
+
+        if (result) {
+          onSuccess();
+          pop();
+        }
       }
-    } else {
-      // Create new task
-      const payload: CreateTaskPayload = {
-        task: taskName.trim(),
-        categoryId: parseInt(categoryId, 10),
-        priorityId: parseInt(priorityId, 10),
-        due: formatDateForAPI(dueDate),
-        ...(description.trim() && { description: description.trim() }),
-      };
-
-      const result = await createTask(payload);
-      setIsLoading(false);
-
-      if (result) {
-        onSuccess();
-        pop();
-      }
-    }
-  }
+    },
+    initialValues: {
+      task: task?.task || initialTaskName || "",
+      description: task?.description || "",
+      categoryId: task?.categoryId !== undefined ? task.categoryId.toString() : "",
+      priorityId: task?.priorityId !== undefined ? task.priorityId.toString() : defaultPriority.id.toString(),
+      dueDateOption: getInitialDueDateOption(),
+    },
+    validation: {
+      task: FormValidation.Required,
+      categoryId: (value) => {
+        if (!value || value === "") {
+          return "Category is required";
+        }
+      },
+      priorityId: FormValidation.Required,
+      dueDateOption: FormValidation.Required,
+    },
+  });
 
   return (
     <Form
-      isLoading={isLoading}
       actions={
         <ActionPanel>
           <Action.SubmitForm title={isEditing ? "Update Task" : "Create Task"} onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
-      <Form.TextField id="task" title="Task" placeholder="Enter task name" value={taskName} onChange={setTaskName} />
+      <Form.TextField title="Task" placeholder="Enter task name" {...itemProps.task} />
       <Form.TextArea
-        id="description"
         title="Description"
         placeholder="Optional task description"
-        value={description}
-        onChange={setDescription}
+        {...itemProps.description}
       />
-      <Form.Dropdown id="category" title="Category" value={categoryId} onChange={setCategoryId}>
+      <Form.Dropdown title="Category" {...itemProps.categoryId}>
         <Form.Dropdown.Item value="" title="Select a category" />
         {categories.map((cat) => (
           <Form.Dropdown.Item key={cat.id} value={cat.id.toString()} title={cat.category} />
         ))}
       </Form.Dropdown>
-      <Form.Dropdown id="priority" title="Priority" value={priorityId} onChange={setPriorityId}>
+      <Form.Dropdown title="Priority" {...itemProps.priorityId}>
         {sortPrioritiesByLevel(priorities).map((priority) => (
           <Form.Dropdown.Item
             key={priority.id}
@@ -138,7 +144,7 @@ export function TaskForm({ categories, priorities, task, initialTaskName, onSucc
           />
         ))}
       </Form.Dropdown>
-      <Form.Dropdown id="due" title="Due Date" value={dueDateOption} onChange={setDueDateOption}>
+      <Form.Dropdown title="Due Date" {...itemProps.dueDateOption}>
         <Form.Dropdown.Item value="today" title="Today" />
         <Form.Dropdown.Item value="tomorrow" title="Tomorrow" />
         <Form.Dropdown.Item value="2days" title="2 days from now" />

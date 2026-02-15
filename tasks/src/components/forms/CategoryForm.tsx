@@ -1,5 +1,5 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
-import { useState } from "react";
+import { useForm, FormValidation } from "@raycast/utils";
 import { createCategory } from "../../api/categories";
 import type { CreateCategoryPayload } from "../../types";
 
@@ -7,41 +7,39 @@ type CategoryFormProps = {
   onSuccess: () => void;
 };
 
+interface CategoryFormValues {
+  category: string;
+  description: string;
+  repositoryUrl: string;
+  branchName: string;
+}
+
 export function CategoryForm({ onSuccess }: CategoryFormProps) {
   const { pop } = useNavigation();
-  const [categoryName, setCategoryName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [repositoryUrl, setRepositoryUrl] = useState<string>("");
-  const [branchName, setBranchName] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  async function handleSubmit() {
-    if (!categoryName.trim()) {
-      return;
-    }
+  const { handleSubmit, itemProps } = useForm<CategoryFormValues>({
+    async onSubmit(values) {
+      const payload: CreateCategoryPayload = {
+        category: values.category.trim(),
+        description: values.description.trim() || undefined,
+        repositoryUrl: values.repositoryUrl.trim() || undefined,
+        branchName: values.branchName.trim() || undefined,
+      };
 
-    setIsLoading(true);
+      const result = await createCategory(payload);
 
-    const payload: CreateCategoryPayload = {
-      category: categoryName.trim(),
-      description: description.trim() || undefined,
-      repositoryUrl: repositoryUrl.trim() || undefined,
-      branchName: branchName.trim() || undefined,
-    };
-
-    const result = await createCategory(payload);
-
-    setIsLoading(false);
-
-    if (result) {
-      onSuccess();
-      pop();
-    }
-  }
+      if (result) {
+        onSuccess();
+        pop();
+      }
+    },
+    validation: {
+      category: FormValidation.Required,
+    },
+  });
 
   return (
     <Form
-      isLoading={isLoading}
       actions={
         <ActionPanel>
           <Action.SubmitForm title="Create Category" onSubmit={handleSubmit} />
@@ -49,32 +47,24 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
       }
     >
       <Form.TextField
-        id="category"
         title="Category Name"
         placeholder="Enter category name"
-        value={categoryName}
-        onChange={setCategoryName}
+        {...itemProps.category}
       />
       <Form.TextField
-        id="description"
         title="Description"
         placeholder="Optional description"
-        value={description}
-        onChange={setDescription}
+        {...itemProps.description}
       />
       <Form.TextField
-        id="repositoryUrl"
         title="Repository URL"
         placeholder="https://github.com/username/repo (optional)"
-        value={repositoryUrl}
-        onChange={setRepositoryUrl}
+        {...itemProps.repositoryUrl}
       />
       <Form.TextField
-        id="branchName"
         title="Branch Name"
         placeholder="main, dev, etc. (optional)"
-        value={branchName}
-        onChange={setBranchName}
+        {...itemProps.branchName}
       />
     </Form>
   );
