@@ -12,7 +12,7 @@ export async function fetchTasks(): Promise<Task[]> {
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(config.GET_ALL_TASKS_ENDPOINT, {
+    const response = await fetch(config.TASKS_ENDPOINT, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task | nul
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(config.CREATE_TASK_ENDPOINT, {
+    const response = await fetch(config.TASKS_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export async function updateTask(id: number, payload: UpdateTaskPayload): Promis
 
     console.log("updateTask called with:", { id, payload });
 
-    const response = await fetch(`${config.UPDATE_TASK_ENDPOINT}/${id}`, {
+    const response = await fetch(`${config.TASKS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -128,7 +128,7 @@ export async function deleteTask(id: number): Promise<boolean> {
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(`${config.DELETE_TASK_ENDPOINT}/${id}`, {
+    const response = await fetch(`${config.TASKS_ENDPOINT}/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

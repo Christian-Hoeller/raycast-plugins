@@ -12,7 +12,7 @@ export async function fetchPriorities(): Promise<Priority[]> {
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(config.GET_ALL_PRIORITIES_ENDPOINT, {
+    const response = await fetch(config.PRIORITIES_ENDPOINT, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export async function createPriority(payload: CreatePriorityPayload): Promise<Pr
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(config.CREATE_PRIORITY_ENDPOINT, {
+    const response = await fetch(config.PRIORITIES_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export async function deletePriority(id: number): Promise<boolean> {
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(`${config.DELETE_PRIORITY_ENDPOINT}/${id}`, {
+    const response = await fetch(`${config.PRIORITIES_ENDPOINT}/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

@@ -12,7 +12,7 @@ export async function fetchCategories(): Promise<TaskCategory[]> {
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(config.GET_TASK_CATEGORIES_ENDPOINT, {
+    const response = await fetch(config.CATEGORIES_ENDPOINT, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export async function createCategory(payload: CreateCategoryPayload): Promise<Ta
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(config.CREATE_TASK_CATEGORY_ENDPOINT, {
+    const response = await fetch(config.CATEGORIES_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -89,7 +89,7 @@ export async function updateCategory(
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(`${config.CREATE_TASK_CATEGORY_ENDPOINT}/${id}`, {
+    const response = await fetch(`${config.CATEGORIES_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -129,7 +129,7 @@ export async function deleteCategory(id: number): Promise<boolean> {
       throw new Error("Configuration not found");
     }
 
-    const response = await fetch(`${config.DELETE_TASK_CATEGORIES_ENDPOINT}/${id}`, {
+    const response = await fetch(`${config.CATEGORIES_ENDPOINT}/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
