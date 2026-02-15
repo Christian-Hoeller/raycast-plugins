@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
+import { confirmAlert, Alert } from "@raycast/api";
 import { updateTask, deleteTask } from "../api/tasks";
+import { sendToCodingAgent } from "../api/codingAgent";
 import type { Task } from "../types";
 
 /**
@@ -62,11 +64,30 @@ export function useTaskActions(tasks: Task[], setTasks: React.Dispatch<React.Set
     [setTasks],
   );
 
+  const handleSendToCodingAgent = useCallback(async (task: Task) => {
+    if (
+      await confirmAlert({
+        title: "Send to Coding Agent",
+        message: `This will send task "${task.task}" to the coding agent. This operation may incur costs. Are you sure you want to continue?`,
+        primaryAction: {
+          title: "Send to Agent",
+          style: Alert.ActionStyle.Default,
+        },
+        dismissAction: {
+          title: "Cancel",
+        },
+      })
+    ) {
+      await sendToCodingAgent(task.id);
+    }
+  }, []);
+
   return {
     taskDescriptions,
     handleToggleDone,
     handleToggleArchived,
     handleDeleteTask,
     updateTaskDescription,
+    handleSendToCodingAgent,
   };
 }

@@ -25,8 +25,14 @@ export default function Command() {
     setShowingDetail,
     filteredTasks,
   } = useTaskFilters(tasks, priorities, sortMode);
-  const { taskDescriptions, handleToggleDone, handleToggleArchived, handleDeleteTask, updateTaskDescription } =
-    useTaskActions(tasks, setTasks);
+  const {
+    taskDescriptions,
+    handleToggleDone,
+    handleToggleArchived,
+    handleDeleteTask,
+    updateTaskDescription,
+    handleSendToCodingAgent,
+  } = useTaskActions(tasks, setTasks);
 
   // Show configuration form if not configured
   if (isConfigured === false) {
@@ -144,6 +150,7 @@ export default function Command() {
               onShowArchivedToggle={() => setShowArchived(!showArchived)}
               onRefresh={loadData}
               onCheckConfiguration={checkConfiguration}
+              onSendToCodingAgent={handleSendToCodingAgent}
             />
           ))}
         </List.Section>

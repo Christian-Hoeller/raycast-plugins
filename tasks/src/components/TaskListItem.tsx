@@ -1,6 +1,6 @@
 import { ActionPanel, List, Action, Icon, confirmAlert, Alert } from "@raycast/api";
 import { formatRelativeDate, isOverdue } from "../utils/formatters";
-import { getCategoryColor } from "../utils/categoryHelpers";
+import { getCategoryColor, hasValidRepository } from "../utils/categoryHelpers";
 import { getPriorityName, getPriorityColor } from "../utils/priorityHelpers";
 import { TaskForm } from "./forms/TaskForm";
 import { CategoryForm } from "./forms/CategoryForm";
@@ -26,6 +26,7 @@ type TaskListItemProps = {
   onShowArchivedToggle: () => void;
   onRefresh: () => void;
   onCheckConfiguration: () => void;
+  onSendToCodingAgent: (task: Task) => void;
 };
 
 export function TaskListItem({
@@ -45,8 +46,10 @@ export function TaskListItem({
   onShowArchivedToggle,
   onRefresh,
   onCheckConfiguration,
+  onSendToCodingAgent,
 }: TaskListItemProps) {
   const overdue = !task.done && isOverdue(task.due);
+  const category = categories.find((cat) => cat.id === task.categoryId);
 
   return (
     <List.Item
@@ -94,6 +97,14 @@ export function TaskListItem({
             onAction={() => onToggleDone(task)}
             shortcut={{ modifiers: ["cmd"], key: "enter" }}
           />
+          {hasValidRepository(category) && (
+            <Action
+              title="Send to Coding Agent"
+              icon={Icon.Rocket}
+              onAction={() => onSendToCodingAgent(task)}
+              shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+            />
+          )}
           <Action
             title={task.archived ? "Unarchive Task" : "Archive Task"}
             icon={Icon.Box}

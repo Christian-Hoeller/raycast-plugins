@@ -19,6 +19,7 @@ interface ConfigFormValues {
   getAllPrioritiesEndpoint: string;
   createPriorityEndpoint: string;
   deletePriorityEndpoint: string;
+  codingAgentEndpoint: string;
 }
 
 // URL validation function
@@ -64,6 +65,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
           getAllPrioritiesEndpoint: config.GET_ALL_PRIORITIES_ENDPOINT,
           createPriorityEndpoint: config.CREATE_PRIORITY_ENDPOINT,
           deletePriorityEndpoint: config.DELETE_PRIORITY_ENDPOINT,
+          codingAgentEndpoint: config.CODING_AGENT_ENDPOINT,
         });
       } else {
         // Set empty values if no config exists
@@ -78,6 +80,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
           getAllPrioritiesEndpoint: "",
           createPriorityEndpoint: "",
           deletePriorityEndpoint: "",
+          codingAgentEndpoint: "",
         });
       }
       setIsLoadingConfig(false);
@@ -99,6 +102,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         GET_ALL_PRIORITIES_ENDPOINT: values.getAllPrioritiesEndpoint.trim(),
         CREATE_PRIORITY_ENDPOINT: values.createPriorityEndpoint.trim(),
         DELETE_PRIORITY_ENDPOINT: values.deletePriorityEndpoint.trim(),
+        CODING_AGENT_ENDPOINT: values.codingAgentEndpoint.trim(),
       };
 
       await saveConfig(config);
@@ -117,6 +121,7 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
       getAllPrioritiesEndpoint: validateUrl,
       createPriorityEndpoint: validateUrl,
       deletePriorityEndpoint: validateUrl,
+      codingAgentEndpoint: validateUrl,
     },
   });
 
@@ -205,6 +210,15 @@ export function ConfigurationForm({ onSuccess }: ConfigurationFormProps) {
         title="Delete Priority"
         placeholder="https://n8n.some-instance.com/webhook/priorities"
         {...itemProps.deletePriorityEndpoint}
+      />
+
+      <Form.Separator />
+
+      <Form.TextField
+        id="codingAgentEndpoint"
+        title="Coding Agent Endpoint"
+        placeholder="https://n8n.some-instance.com/webhook/agents/codingAgent"
+        {...itemProps.codingAgentEndpoint}
       />
     </Form>
   );

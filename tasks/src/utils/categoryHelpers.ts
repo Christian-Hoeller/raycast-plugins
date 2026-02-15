@@ -22,3 +22,16 @@ export function getCategoryName(task: Task, categories: TaskCategory[]): string 
   const category = categories.find((cat) => cat.id === task.categoryId);
   return category?.category || "Unknown";
 }
+
+/**
+ * Check if a category has valid repository information
+ */
+export function hasValidRepository(category: TaskCategory | undefined): boolean {
+  return Boolean(
+    category &&
+    category.repositoryUrl &&
+    category.repositoryUrl.trim() !== "" &&
+    category.branchName &&
+    category.branchName.trim() !== "",
+  );
+}
