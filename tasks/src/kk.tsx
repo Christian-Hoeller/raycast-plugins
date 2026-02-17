@@ -5,9 +5,9 @@ import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { getCategoryName } from "./utils/categoryHelpers";
 import { getTaskCountByCategory, type SortMode } from "./utils/taskHelpers";
-import { TaskForm } from "./components/forms/TaskForm";
 import { ConfigurationFormWrapper } from "./components/ConfigurationFormWrapper";
 import { TaskListItem } from "./components/TaskListItem";
+import { EmptyTaskListActions } from "./components/actions/EmptyTaskListActions";
 
 export default function Command() {
   // Custom hooks for data management
@@ -91,39 +91,17 @@ export default function Command() {
               : "All tasks completed! Create a new task with Cmd+N or show archived with Cmd+Shift+A"
           }
           actions={
-            <ActionPanel>
-              <Action.Push
-                title="Create Task"
-                icon={Icon.Plus}
-                target={
-                  <TaskForm
-                    categories={categories}
-                    priorities={priorities}
-                    initialTaskName={searchText}
-                    onSuccess={loadData}
-                  />
-                }
-                shortcut={{ modifiers: ["cmd"], key: "n" }}
-              />
-              <Action
-                title={showArchived ? "Hide Archived" : "Show Archived"}
-                icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
-                onAction={() => setShowArchived(!showArchived)}
-                shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
-              />
-              <Action
-                title={`Sort by ${sortMode === "priority" ? "Date" : "Priority"}`}
-                icon={sortMode === "priority" ? Icon.Calendar : Icon.LevelMeter}
-                onAction={() => setSortMode(sortMode === "priority" ? "createdAt" : "priority")}
-                shortcut={{ modifiers: ["cmd"], key: "t" }}
-              />
-              <Action.Push
-                title="Settings"
-                icon={Icon.Gear}
-                target={<ConfigurationFormWrapper onSuccess={checkConfiguration} />}
-                shortcut={{ modifiers: ["cmd"], key: "," }}
-              />
-            </ActionPanel>
+            <EmptyTaskListActions
+              categories={categories}
+              priorities={priorities}
+              searchText={searchText}
+              showArchived={showArchived}
+              sortMode={sortMode}
+              onRefresh={loadData}
+              onShowArchivedToggle={() => setShowArchived(!showArchived)}
+              onSortModeToggle={() => setSortMode(sortMode === "priority" ? "createdAt" : "priority")}
+              onCheckConfiguration={checkConfiguration}
+            />
           }
         />
       ) : (
