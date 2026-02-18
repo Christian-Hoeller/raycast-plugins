@@ -1,8 +1,7 @@
 import { ActionPanel, Action, Icon } from "@raycast/api";
 import { type SortMode } from "../../utils/taskHelpers";
 import { TaskForm } from "../forms/TaskForm";
-import { CategoryForm } from "../forms/CategoryForm";
-import { ConfigurationFormWrapper } from "../ConfigurationFormWrapper";
+import { SharedCommonActions } from "./SharedCommonActions";
 import type { TaskCategory, Priority } from "../../types";
 
 type EmptyTaskListActionsProps = {
@@ -43,30 +42,21 @@ export function EmptyTaskListActions({
         }
         shortcut={{ modifiers: ["cmd"], key: "n" }}
       />
-      <Action.Push
-        title="Create New Category"
-        icon={Icon.Tag}
-        target={<CategoryForm onSuccess={onRefresh} />}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "n" }}
-      />
-      <Action
-        title={showArchived ? "Hide Archived" : "Show Archived"}
-        icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
-        onAction={onShowArchivedToggle}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
-      />
-      <Action
-        title={`Sort by ${sortMode === "priority" ? "Date" : "Priority"}`}
-        icon={sortMode === "priority" ? Icon.Calendar : Icon.LevelMeter}
-        onAction={onSortModeToggle}
-        shortcut={{ modifiers: ["cmd"], key: "t" }}
-      />
-      <Action.Push
-        title="Settings"
-        icon={Icon.Gear}
-        target={<ConfigurationFormWrapper onSuccess={onCheckConfiguration} />}
-        shortcut={{ modifiers: ["cmd"], key: "," }}
-      />
+      <ActionPanel.Section>
+        <Action
+          title={showArchived ? "Hide Archived" : "Show Archived"}
+          icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
+          onAction={onShowArchivedToggle}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+        />
+        <Action
+          title={`Sort by ${sortMode === "priority" ? "Date" : "Priority"}`}
+          icon={sortMode === "priority" ? Icon.Calendar : Icon.LevelMeter}
+          onAction={onSortModeToggle}
+          shortcut={{ modifiers: ["cmd"], key: "t" }}
+        />
+      </ActionPanel.Section>
+      <SharedCommonActions onRefresh={onRefresh} onCheckConfiguration={onCheckConfiguration} />
     </ActionPanel>
   );
 }

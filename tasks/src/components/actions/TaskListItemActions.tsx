@@ -1,8 +1,8 @@
 import { ActionPanel, Action, Icon, confirmAlert, Alert } from "@raycast/api";
 import { TaskForm } from "../forms/TaskForm";
-import { CategoryForm } from "../forms/CategoryForm";
-import { ConfigurationFormWrapper } from "../ConfigurationFormWrapper";
 import { TaskDescriptionForm } from "../forms/TaskDescriptionForm";
+import { DetailToggleAction } from "./DetailToggleAction";
+import { SharedCommonActions } from "./SharedCommonActions";
 import { hasValidRepository } from "../../utils/categoryHelpers";
 import type { Task, TaskCategory, Priority } from "../../types";
 
@@ -47,12 +47,7 @@ export function TaskListItemActions({
 }: TaskListItemActionsProps) {
   return (
     <ActionPanel>
-      <Action
-        title={showingDetail ? "Hide Details" : "Show Details"}
-        icon={showingDetail ? Icon.EyeDisabled : Icon.Eye}
-        onAction={onToggleDetail}
-        shortcut={{ modifiers: ["cmd"], key: "d" }}
-      />
+      <DetailToggleAction showingDetail={showingDetail} onToggle={onToggleDetail} />
       <Action
         title="Toggle Done"
         icon={Icon.Check}
@@ -132,30 +127,13 @@ export function TaskListItemActions({
           }
           shortcut={{ modifiers: ["cmd"], key: "n" }}
         />
-        <Action.Push
-          title="Create New Category"
-          icon={Icon.Tag}
-          target={<CategoryForm onSuccess={onRefresh} />}
-          shortcut={{ modifiers: ["cmd", "shift"], key: "n" }}
-        />
         <Action
           title={showArchived ? "Hide Archived" : "Show Archived"}
           icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
           onAction={onShowArchivedToggle}
         />
-        <Action
-          title="Refresh"
-          icon={Icon.ArrowClockwise}
-          onAction={onRefresh}
-          shortcut={{ modifiers: ["cmd"], key: "r" }}
-        />
-        <Action.Push
-          title="Settings"
-          icon={Icon.Gear}
-          target={<ConfigurationFormWrapper onSuccess={onCheckConfiguration} />}
-          shortcut={{ modifiers: ["cmd"], key: "," }}
-        />
       </ActionPanel.Section>
+      <SharedCommonActions onRefresh={onRefresh} onCheckConfiguration={onCheckConfiguration} />
     </ActionPanel>
   );
 }

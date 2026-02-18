@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTasksData } from "./hooks/useTasksData";
 import { useTaskFilters } from "./hooks/useTaskFilters";
 import { useTaskActions } from "./hooks/useTaskActions";
+import { useDetailToggle } from "./hooks/useDetailToggle";
 import { getCategoryName } from "./utils/categoryHelpers";
 import { getTaskCountByCategory, type SortMode } from "./utils/taskHelpers";
 import { ConfigurationFormWrapper } from "./components/ConfigurationFormWrapper";
@@ -14,6 +15,7 @@ export default function Command() {
   const { tasks, setTasks, categories, priorities, isLoading, isConfigured, loadData, checkConfiguration } =
     useTasksData();
   const [sortMode, setSortMode] = useState<SortMode>("createdAt");
+  const { showingDetail, setShowingDetail } = useDetailToggle();
   const {
     selectedCategory,
     setSelectedCategory,
@@ -21,8 +23,6 @@ export default function Command() {
     setSearchText,
     showArchived,
     setShowArchived,
-    showingDetail,
-    setShowingDetail,
     filteredTasks,
   } = useTaskFilters(tasks, priorities, sortMode);
   const {
