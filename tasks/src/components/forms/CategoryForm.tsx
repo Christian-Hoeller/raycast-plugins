@@ -1,9 +1,10 @@
 import { ActionPanel, Action, Form, useNavigation } from "@raycast/api";
 import { useForm, FormValidation } from "@raycast/utils";
-import { createCategory } from "../../api/categories";
-import type { CreateCategoryPayload } from "../../types";
+import { createCategory, updateCategory } from "../../api/categories";
+import type { CreateCategoryPayload, TaskCategory } from "../../types";
 
 type CategoryFormProps = {
+  category?: TaskCategory;
   onSuccess: () => void;
 };
 
@@ -14,8 +15,9 @@ interface CategoryFormValues {
   branchName: string;
 }
 
-export function CategoryForm({ onSuccess }: CategoryFormProps) {
+export function CategoryForm({ category, onSuccess }: CategoryFormProps) {
   const { pop } = useNavigation();
+  const isEditing = !!category;
 
   const { handleSubmit, itemProps } = useForm<CategoryFormValues>({
     async onSubmit(values) {
@@ -26,12 +28,25 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
         branchName: values.branchName.trim() || undefined,
       };
 
-      const result = await createCategory(payload);
+      let result;
+      if (isEditing && category) {
+        // Update existing category
+        result = await updateCategory(category.id, payload);
+      } else {
+        // Create new category
+        result = await createCategory(payload);
+      }
 
       if (result) {
         onSuccess();
         pop();
       }
+    },
+    initialValues: {
+      category: category?.category || "",
+      description: category?.description || "",
+      repositoryUrl: category?.repositoryUrl || "",
+      branchName: category?.branchName || "",
     },
     validation: {
       category: FormValidation.Required,
@@ -42,7 +57,7 @@ export function CategoryForm({ onSuccess }: CategoryFormProps) {
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Create Category" onSubmit={handleSubmit} />
+          <Action.SubmitForm title={isEditing ? "Update Category" : "Create Category"} onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
