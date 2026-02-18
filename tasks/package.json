@@ -20,6 +20,12 @@
       "title": "kk",
       "description": "",
       "mode": "view"
+    },
+    {
+      "name": "categories",
+      "title": "List Categories",
+      "description": "View and manage all task categories",
+      "mode": "view"
     }
   ],
   "dependencies": {
