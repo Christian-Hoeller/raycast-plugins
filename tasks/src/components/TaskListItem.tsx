@@ -13,6 +13,7 @@ type TaskListItemProps = {
   priorities: Priority[];
   showingDetail: boolean;
   showArchived: boolean;
+  showDueToday: boolean;
   searchText: string;
   description?: string;
   onToggleDetail: () => void;
@@ -21,6 +22,7 @@ type TaskListItemProps = {
   onDelete: (task: Task) => void;
   onUpdateDescription: (taskId: number, description: string) => void;
   onShowArchivedToggle: () => void;
+  onShowDueTodayToggle: () => void;
   onRefresh: () => void;
   onCheckConfiguration: () => void;
   onSendToCodingAgent: (task: Task) => void;
@@ -33,6 +35,7 @@ export function TaskListItem({
   priorities,
   showingDetail,
   showArchived,
+  showDueToday,
   searchText,
   description,
   onToggleDetail,
@@ -41,6 +44,7 @@ export function TaskListItem({
   onDelete,
   onUpdateDescription,
   onShowArchivedToggle,
+  onShowDueTodayToggle,
   onRefresh,
   onCheckConfiguration,
   onSendToCodingAgent,
@@ -88,6 +92,7 @@ export function TaskListItem({
           category={category}
           showingDetail={showingDetail}
           showArchived={showArchived}
+          showDueToday={showDueToday}
           searchText={searchText}
           description={description}
           onToggleDetail={onToggleDetail}
@@ -96,6 +101,7 @@ export function TaskListItem({
           onDelete={onDelete}
           onUpdateDescription={onUpdateDescription}
           onShowArchivedToggle={onShowArchivedToggle}
+          onShowDueTodayToggle={onShowDueTodayToggle}
           onRefresh={onRefresh}
           onCheckConfiguration={onCheckConfiguration}
           onSendToCodingAgent={onSendToCodingAgent}

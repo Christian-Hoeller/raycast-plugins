@@ -23,6 +23,8 @@ export default function Command() {
     setSearchText,
     showArchived,
     setShowArchived,
+    showDueToday,
+    setShowDueToday,
     filteredTasks,
   } = useTaskFilters(tasks, priorities, sortMode);
   const {
@@ -96,9 +98,11 @@ export default function Command() {
               priorities={priorities}
               searchText={searchText}
               showArchived={showArchived}
+              showDueToday={showDueToday}
               sortMode={sortMode}
               onRefresh={loadData}
               onShowArchivedToggle={() => setShowArchived(!showArchived)}
+              onShowDueTodayToggle={() => setShowDueToday(!showDueToday)}
               onSortModeToggle={() => setSortMode(sortMode === "priority" ? "createdAt" : "priority")}
               onCheckConfiguration={checkConfiguration}
             />
@@ -118,6 +122,7 @@ export default function Command() {
               priorities={priorities}
               showingDetail={showingDetail}
               showArchived={showArchived}
+              showDueToday={showDueToday}
               searchText={searchText}
               description={taskDescriptions[task.id]}
               onToggleDetail={() => setShowingDetail(!showingDetail)}
@@ -126,6 +131,7 @@ export default function Command() {
               onDelete={handleDeleteTask}
               onUpdateDescription={updateTaskDescription}
               onShowArchivedToggle={() => setShowArchived(!showArchived)}
+              onShowDueTodayToggle={() => setShowDueToday(!showDueToday)}
               onRefresh={loadData}
               onCheckConfiguration={checkConfiguration}
               onSendToCodingAgent={handleSendToCodingAgent}
