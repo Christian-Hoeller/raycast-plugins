@@ -1,3 +1,4 @@
+import { isToday, parseISO } from "date-fns";
 import type { Task, Priority } from "../types";
 
 export type SortMode = "priority" | "createdAt";
@@ -13,18 +14,27 @@ ${description || "_No description provided_"}`.trim();
 }
 
 /**
- * Filter tasks based on category, archived status, and search text
+ * Filter tasks based on category, archived status, search text, and due date
  */
 export function filterTasks(
   tasks: Task[],
   selectedCategory: string,
   showArchived: boolean,
   searchText: string,
+  showDueToday: boolean = false,
 ): Task[] {
   return tasks.filter((task) => {
     // Filter by archived status
     if (!showArchived && task.archived) {
       return false;
+    }
+
+    // Filter by due today
+    if (showDueToday && task.due) {
+      const taskDueDate = parseISO(task.due);
+      if (!isToday(taskDueDate)) {
+        return false;
+      }
     }
 
     // Filter by category

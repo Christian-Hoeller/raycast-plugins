@@ -9,11 +9,12 @@ export function useTaskFilters(tasks: Task[], priorities: Priority[], sortMode: 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
   const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [showDueToday, setShowDueToday] = useState<boolean>(false);
 
   const filteredTasks = useMemo(() => {
-    const filtered = filterTasks(tasks, selectedCategory, showArchived, searchText);
+    const filtered = filterTasks(tasks, selectedCategory, showArchived, searchText, showDueToday);
     return sortTasks(filtered, priorities, sortMode);
-  }, [tasks, priorities, sortMode, selectedCategory, showArchived, searchText]);
+  }, [tasks, priorities, sortMode, selectedCategory, showArchived, searchText, showDueToday]);
 
   return {
     selectedCategory,
@@ -22,6 +23,8 @@ export function useTaskFilters(tasks: Task[], priorities: Priority[], sortMode: 
     setSearchText,
     showArchived,
     setShowArchived,
+    showDueToday,
+    setShowDueToday,
     filteredTasks,
   };
 }
