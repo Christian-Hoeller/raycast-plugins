@@ -9,9 +9,11 @@ type EmptyTaskListActionsProps = {
   priorities: Priority[];
   searchText: string;
   showArchived: boolean;
+  showDueToday: boolean;
   sortMode: SortMode;
   onRefresh: () => void;
   onShowArchivedToggle: () => void;
+  onShowDueTodayToggle: () => void;
   onSortModeToggle: () => void;
   onCheckConfiguration: () => void;
 };
@@ -21,9 +23,11 @@ export function EmptyTaskListActions({
   priorities,
   searchText,
   showArchived,
+  showDueToday,
   sortMode,
   onRefresh,
   onShowArchivedToggle,
+  onShowDueTodayToggle,
   onSortModeToggle,
   onCheckConfiguration,
 }: EmptyTaskListActionsProps) {
@@ -48,6 +52,12 @@ export function EmptyTaskListActions({
           icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
           onAction={onShowArchivedToggle}
           shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+        />
+        <Action
+          title={showDueToday ? "Show All Tasks" : "Show Due Today"}
+          icon={showDueToday ? Icon.Calendar : Icon.Clock}
+          onAction={onShowDueTodayToggle}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "d" }}
         />
         <Action
           title={`Sort by ${sortMode === "priority" ? "Date" : "Priority"}`}

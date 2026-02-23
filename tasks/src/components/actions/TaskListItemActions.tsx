@@ -13,6 +13,7 @@ type TaskListItemActionsProps = {
   category: TaskCategory | undefined;
   showingDetail: boolean;
   showArchived: boolean;
+  showDueToday: boolean;
   searchText: string;
   description?: string;
   onToggleDetail: () => void;
@@ -21,6 +22,7 @@ type TaskListItemActionsProps = {
   onDelete: (task: Task) => void;
   onUpdateDescription: (taskId: number, description: string) => void;
   onShowArchivedToggle: () => void;
+  onShowDueTodayToggle: () => void;
   onRefresh: () => void;
   onCheckConfiguration: () => void;
   onSendToCodingAgent: (task: Task) => void;
@@ -33,6 +35,7 @@ export function TaskListItemActions({
   category,
   showingDetail,
   showArchived,
+  showDueToday,
   searchText,
   description,
   onToggleDetail,
@@ -41,6 +44,7 @@ export function TaskListItemActions({
   onDelete,
   onUpdateDescription,
   onShowArchivedToggle,
+  onShowDueTodayToggle,
   onRefresh,
   onCheckConfiguration,
   onSendToCodingAgent,
@@ -131,6 +135,12 @@ export function TaskListItemActions({
           title={showArchived ? "Hide Archived" : "Show Archived"}
           icon={showArchived ? Icon.EyeDisabled : Icon.Eye}
           onAction={onShowArchivedToggle}
+        />
+        <Action
+          title={showDueToday ? "Show All Tasks" : "Show Due Today"}
+          icon={showDueToday ? Icon.Calendar : Icon.Clock}
+          onAction={onShowDueTodayToggle}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "d" }}
         />
       </ActionPanel.Section>
       <SharedCommonActions onRefresh={onRefresh} onCheckConfiguration={onCheckConfiguration} />
