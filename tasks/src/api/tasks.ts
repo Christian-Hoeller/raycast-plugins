@@ -86,8 +86,6 @@ export async function updateTask(id: number, payload: UpdateTaskPayload): Promis
       throw new Error("Configuration not found");
     }
 
-    console.log("updateTask called with:", { id, payload });
-
     const response = await fetch(`${config.TASKS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: {

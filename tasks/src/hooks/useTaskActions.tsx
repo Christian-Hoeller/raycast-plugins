@@ -53,9 +53,7 @@ export function useTaskActions(tasks: Task[], setTasks: React.Dispatch<React.Set
 
   const updateTaskDescription = useCallback(
     async (taskId: number, description: string) => {
-      console.log("updateTaskDescription called with:", { taskId, description });
       const updated = await updateTask(taskId, { description });
-      console.log("updateTask returned:", updated);
       if (updated) {
         setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, description } : t)));
         setTaskDescriptions((prev) => ({ ...prev, [taskId]: description }));
